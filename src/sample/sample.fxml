@@ -10,17 +10,22 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-<BorderPane maxHeight="1080.0" maxWidth="1920.0" minHeight="720.0" minWidth="1080.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<BorderPane maxHeight="1080.0" maxWidth="1920.0" minHeight="720.0" minWidth="1080.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <center>
       <MediaView fx:id="mediaV" fitHeight="200.0" fitWidth="200.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1C1C1C;" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="play" layoutX="703.0" layoutY="31.0" mnemonicParsing="false" onAction="#handlePlay" style="-fx-graphic: url('http://icons.iconarchive.com/icons/aha-soft/desktop-buffet/128/Pizza-icon.png');" text="Next" />
             <ImageView fx:id="albumCoverView" fitHeight="204.0" fitWidth="222.0" layoutX="-1.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true" />
-            <Button layoutX="456.0" layoutY="32.0" mnemonicParsing="false" prefHeight="144.0" prefWidth="216.0" style="-fx-graphic: url('http://icons.iconarchive.com/icons/aha-soft/desktop-buffet/128/Piece-of-cake-icon.png');" text="Play/Pause" />
-            <Button fx:id="previousButton" focusTraversable="false" layoutX="295.0" layoutY="75.0" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/previous.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #FFFFFF;" />
+            <HBox layoutX="447.0" layoutY="75.0" prefHeight="64.0" prefWidth="256.0">
+               <children>
+                  <Button fx:id="previousButton1" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/previous.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                  <Button fx:id="previousButton2" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/play.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                  <Button fx:id="previousButton3" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/next.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+               </children>
+            </HBox>
+            <Button fx:id="previousButton" focusTraversable="false" layoutX="374.0" layoutY="76.0" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/stop.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
          </children>
       </Pane>
    </bottom>
