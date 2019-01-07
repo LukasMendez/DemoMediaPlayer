@@ -28,7 +28,7 @@ public class Controller implements Initializable {
      */
     public void initialize(URL location, ResourceBundle resources){
         // Build the path to the location of the media file
-        String path = new File("src/sample/media/SampleAudio_0.4mb.mp3").getAbsolutePath();
+        String path = new File("src/sample/media/a lot.mp3").getAbsolutePath();
         // Create new Media object (the actual media content)
         me = new Media(new File(path).toURI().toString());
         // Create new MediaPlayer and attach the media to be played
@@ -49,6 +49,15 @@ public class Controller implements Initializable {
     {
         // Play the mediaPlayer with the attached media
         mp.play();
+    }
+
+
+    private void showAlbumCover(File songName){
+
+
+        // TODO GET THE ALBUM ARTWORK AND MAKE IT DISPLAY IN THE IMAGEVIEW
+
+
     }
 
 }
