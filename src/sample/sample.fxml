@@ -28,6 +28,7 @@
             </HBox>
             <Button fx:id="stopButton" focusTraversable="false" layoutX="374.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleStop" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/stop.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
             <Slider fx:id="volumeSlider" layoutX="790.0" layoutY="95.0" nodeOrientation="LEFT_TO_RIGHT" onDragDetected="#adjustVolume" value="100.0" />
+            <Slider layoutX="343.0" layoutY="32.0" prefHeight="28.0" prefWidth="371.0" />
          </children>
       </Pane>
    </bottom>

@@ -34,6 +34,9 @@ public class Controller implements Initializable {
     @FXML
     private Slider volumeSlider;
 
+    @FXML
+    private Slider durationSlider;
+
     private MediaPlayer mp;
     private Media me;
 
@@ -140,12 +143,20 @@ public class Controller implements Initializable {
     }
 
 
+
+
+
+
     @FXML
     private void addSongToLibrary(ActionEvent event){
 
 
         File selectedFile = null;
         JFileChooser chooser = new JFileChooser();
+
+
+
+
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) { // From the book. Select a file
             selectedFile = chooser.getSelectedFile(); // get the file
         }
@@ -193,7 +204,7 @@ public class Controller implements Initializable {
 
 
     @FXML
-    public void adjustVolume() {
+    private void adjustVolume() {
         volumeSlider.valueProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
@@ -203,6 +214,7 @@ public class Controller implements Initializable {
 
         );
     }
+
 
 }
 
