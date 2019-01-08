@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.media.*?>
@@ -18,7 +19,7 @@
       <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1C1C1C;" BorderPane.alignment="CENTER">
          <children>
             <ImageView fx:id="albumCoverView" fitHeight="204.0" fitWidth="222.0" layoutX="-1.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true" />
-            <HBox layoutX="447.0" layoutY="75.0" prefHeight="64.0" prefWidth="256.0">
+            <HBox fx:id="hBoxButtons" alignment="CENTER" layoutX="447.0" layoutY="75.0" prefHeight="64.0" prefWidth="256.0">
                <children>
                   <Button fx:id="previousButton" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/previous.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
                   <Button fx:id="playPauseButton" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/play.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
@@ -26,13 +27,28 @@
                </children>
             </HBox>
             <Button fx:id="stopButton" focusTraversable="false" layoutX="374.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleStop" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/stop.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+            <Slider fx:id="volumeSlider" layoutX="790.0" layoutY="95.0" nodeOrientation="LEFT_TO_RIGHT" onDragDetected="#adjustVolume" value="100.0" />
          </children>
       </Pane>
    </bottom>
    <left>
       <Pane prefHeight="520.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" BorderPane.alignment="CENTER">
          <children>
-            <TextField layoutX="25.0" layoutY="36.0" prefHeight="51.0" prefWidth="220.0" />
+            <TextField fx:id="searchField" focusTraversable="false" layoutX="25.0" layoutY="36.0" prefHeight="51.0" prefWidth="220.0" promptText="Search" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-focus-color: transparent; -fx-background-insets: -1.4, 0, 1, 2;">
+               <font>
+                  <Font name="Arial" size="18.0" />
+               </font>
+            </TextField>
+            <Button fx:id="addMusicButton" layoutY="469.0" mnemonicParsing="false" onAction="#addSongToLibrary" prefHeight="51.0" prefWidth="268.0" style="-fx-background-color: #1C1C1C; -fx-border-radius: 0; fx-background-radius: 0;" text="Add Music" textFill="WHITE">
+               <font>
+                  <Font name="Arial" size="24.0" />
+               </font>
+            </Button>
+            <ImageView fitHeight="29.0" fitWidth="29.0" layoutX="25.0" layoutY="480.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../sample/buttons/plus.png" />
+               </image>
+            </ImageView>
          </children></Pane>
    </left>
 </BorderPane>

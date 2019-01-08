@@ -1,11 +1,21 @@
 package sample;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.scene.media.*;
 import javafx.scene.control.Button;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+
+// import java.awt.event.ActionEvent;
+import javafx.event.ActionEvent;
+
+import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import java.util.ResourceBundle;
@@ -17,6 +27,12 @@ public class Controller implements Initializable {
 
     @FXML
     private Button playPauseButton;
+
+    @FXML
+    private Button addMusicButton;
+
+    @FXML
+    private Slider volumeSlider;
 
     private MediaPlayer mp;
     private Media me;
@@ -31,6 +47,9 @@ public class Controller implements Initializable {
      * @param resources
      */
     public void initialize(URL location, ResourceBundle resources){
+
+        DB.selectSQL("select * from tblSong");
+
         // Build the path to the location of the media file
         String path = new File("src/sample/media/a lot.mp3").getAbsolutePath();
         // Create new Media object (the actual media content)
@@ -44,6 +63,7 @@ public class Controller implements Initializable {
         mp.setAutoPlay(false);
 
     }
+
 
     @FXML
     /**
@@ -95,6 +115,8 @@ public class Controller implements Initializable {
     @FXML
     private void handleStop(){
 
+        System.out.println("User pressed the stop button");
+
         mp.stop();
 
         String pathPlay = "/sample/buttons/play.png"; // The path has to be relative in order for CSS to find the image and treat it.
@@ -118,6 +140,30 @@ public class Controller implements Initializable {
     }
 
 
+    @FXML
+    private void addSongToLibrary(ActionEvent event){
+
+
+        File selectedFile = null;
+        JFileChooser chooser = new JFileChooser();
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) { // From the book. Select a file
+            selectedFile = chooser.getSelectedFile(); // get the file
+        }
+
+
+
+
+    }
+
+
+
+
+
+    /**
+     * Will change the song playing
+     * @param filename the name of the song. Will be .mp3 or .wav
+     */
+
     private void changeSong(String filename){
 
         // Build the path to the location of the media file
@@ -132,8 +178,9 @@ public class Controller implements Initializable {
 
 
 
-
     }
+
+
 
 
     private void showAlbumCover(File songName){
@@ -144,4 +191,18 @@ public class Controller implements Initializable {
 
     }
 
+
+    @FXML
+    public void adjustVolume() {
+        volumeSlider.valueProperty().addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable observable) {
+                mp.setVolume(volumeSlider.getValue() / 100);
+            }
+        }
+
+        );
+    }
+
 }
+
