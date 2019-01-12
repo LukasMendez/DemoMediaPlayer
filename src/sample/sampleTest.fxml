@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.media.MediaView?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="1080.0" maxWidth="1920.0" minHeight="720.0" minWidth="1080.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <center>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <bottom>
+            <GridPane prefHeight="179.0" prefWidth="812.0" style="-fx-background-color: #1C1C1C;" BorderPane.alignment="CENTER">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="553.0" minWidth="10.0" prefWidth="199.5" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="355.0" minWidth="10.0" prefWidth="355.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="492.0" minWidth="10.0" prefWidth="244.5" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <HBox alignment="BOTTOM_CENTER" maxWidth="-Infinity" prefHeight="179.0" prefWidth="374.0" GridPane.columnIndex="1">
+                     <children>
+                        <VBox alignment="TOP_CENTER" maxWidth="-Infinity" prefHeight="179.0" prefWidth="355.0" style="-fx-background-color: #1C1C1C;">
+                           <children>
+                              <Pane prefHeight="19.0" prefWidth="328.0" />
+                              <Text fx:id="scrollingText" fill="#e2e2e2" strokeType="OUTSIDE" strokeWidth="0.0" text="Song title - Artist - Album" wrappingWidth="351.888671875">
+                                 <font>
+                                    <Font name="Arial" size="12.0" />
+                                 </font>
+                              </Text>
+                              <HBox alignment="TOP_CENTER" maxWidth="-Infinity" prefHeight="35.0" prefWidth="373.0">
+                                 <children>
+                                    <Label fx:id="displayCurrentTime" prefHeight="27.0" prefWidth="30.0" text="0:00" textFill="WHITE" />
+                                    <Slider fx:id="durationSlider" focusTraversable="false" maxWidth="-Infinity" prefHeight="28.0" prefWidth="301.0" style="-fx-control-inner-background: #BDBDBD;" />
+                                    <Label fx:id="displayTotalDuration" prefHeight="28.0" prefWidth="28.0" text="0:00" textFill="WHITE" />
+                                 </children>
+                              </HBox>
+                              <HBox fx:id="hBoxButtons" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="90.0" prefWidth="286.0">
+                                 <children>
+                                    <Button fx:id="stopButton" focusTraversable="false" mnemonicParsing="false" onAction="#handleStop" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/stop.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                                    <Pane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="64.0" prefWidth="27.0" />
+                                    <Button fx:id="previousButton" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/previous.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                                    <Button fx:id="playPauseButton" defaultButton="true" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/play.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                                    <Button fx:id="nextButton" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/next.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT" prefHeight="209.0" prefWidth="540.0" style="-fx-background-color: #1C1C1C;">
+                     <children>
+                        <MediaView fx:id="mediaV" fitHeight="50.0" fitWidth="50.0" />
+                        <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Pane prefHeight="41.0" prefWidth="100.0" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <VBox prefHeight="179.0" prefWidth="286.0" style="-fx-background-color: #1C1C1C;" GridPane.columnIndex="2">
+                     <children>
+                        <Pane prefHeight="58.0" prefWidth="245.0" style="-fx-background-color: #1C1C1C;" />
+                        <HBox alignment="CENTER" prefHeight="64.0" prefWidth="232.0">
+                           <children>
+                              <Slider fx:id="volumeSlider" focusTraversable="false" maxWidth="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" onDragDetected="#adjustVolume" prefHeight="30.0" prefWidth="104.0" style="-fx-effect: none; -fx-control-inner-background: #BDBDBD;" value="100.0" />
+                              <Button fx:id="buttonMuteandOn" mnemonicParsing="false" onAction="#muteAndOnVolume" prefHeight="30.0" prefWidth="30.0" style="-fx-background-image: url(&quot;/sample/buttons/volumeFull.png&quot;); -fx-background-color: #1C1C1C; -fx-background-size: 30px 30px;" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </GridPane>
+         </bottom>
+         <center>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="testButton" mnemonicParsing="false" onAction="#getPlaylistSelected" text="Test Button" />
+                  <HBox prefHeight="478.0" prefWidth="812.0">
+                     <children>
+                        <ListView fx:id="defaultListView" prefHeight="474.0" prefWidth="812.0" style="-fx-background-color: #E6E6E6;" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </center>
+      </BorderPane>
+   </center>
+   <left>
+      <GridPane prefHeight="720.0" prefWidth="268.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="356.5" minHeight="10.0" prefHeight="136.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="614.0" minHeight="10.0" prefHeight="584.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="239.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;">
+               <children>
+                  <Pane prefHeight="27.0" prefWidth="268.0" />
+                  <TextField maxWidth="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="220.0" promptText="Search" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-focus-color: transparent; -fx-background-insets: -1.4, 0, 1, 2;">
+                     <font>
+                        <Font name="Arial" size="14.0" />
+                     </font>
+                  </TextField>
+                  <Pane prefHeight="14.0" prefWidth="268.0" />
+                  <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="51.0" prefWidth="268.0" style="-fx-background-color: #1C1C1C; -fx-background-radius: 0; -fx-border-radius: 0;" text="         Library" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="18.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@buttons/library.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+               </children>
+            </VBox>
+            <VBox alignment="BOTTOM_LEFT" prefHeight="535.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" GridPane.rowIndex="1">
+               <children>
+                  <ScrollPane prefHeight="202.0" prefWidth="268.0" style="-fx-background: #2E2E2E; -fx-border-color: #2E2E2E;">
+                     <content>
+                        <VBox prefHeight="191.0" prefWidth="250.0">
+                           <children>
+                              <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 1" textFill="WHITE" />
+                              <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 2" textFill="WHITE" />
+                              <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 3" textFill="WHITE" />
+                              <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 4" textFill="WHITE" />
+                              <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 5" textFill="WHITE" />
+                              <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 6" textFill="WHITE" />
+                              <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 7" textFill="WHITE" />
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+                  <Button fx:id="addMusicButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#addSongToLibrary" prefHeight="51.0" prefWidth="268.0" style="-fx-background-color: #1C1C1C; -fx-border-radius: 0; -fx-background-radius: 0;" text="         Add Music" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="18.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../sample/buttons/plus.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Pane prefHeight="10.0" prefWidth="268.0" />
+                  <ImageView fx:id="albumCoverView" fitHeight="268.0" fitWidth="268.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </VBox>
+         </children>
+      </GridPane>
+   </left>
+</BorderPane>
