@@ -68,39 +68,30 @@ public class ExistingPlaylist extends Playlist {
 
     private void configurePlaylistName(int amountOfResults, String playlistName, ListView listView){
 
-        // IF THERE'S ONLY ONE RESULT. WE ASSUME THIS IS THE PLAYLIST THAT THE USER IS LOOKING FOR
-        if (amountOfResults==1){
+        // WILL PROVIDE A VISUAL LIST OF THE SEARCH RESULTS
+        if (amountOfResults>0){
 
             DB.selectSQL("SELECT fldName FROM tblPlaylist\n" +
                     "                    WHERE CHARINDEX('"+playlistName+"', fldName) > 0");
 
-            this.playlistName=DB.getData();
+            displayData(listView);
 
-            emptyData();
-
-        // ELSE IT WILL PROVIDE A VISUAL LIST OF THE SEARCH RESULTS
         } else {
 
-            DB.selectSQL("SELECT fldName, fldPlaylistID FROM tblPlaylist\n" +
-                    "                    WHERE CHARINDEX('"+playlistName+"', fldName) > 0");
-
-
-            displayResults(listView);
-
-
-
-
-
-
+            System.out.println("Nothing to display. Search machine found nothing.");
 
         }
-
-
 
     }
 
 
-    private void displayResults(ListView listView){
+    /**
+     * This method will display the selected data in the List View
+     * @param listView the list view that you are trying to display the data on.
+     */
+
+
+    public void displayData(ListView listView){
 
         // WE CREATE AN ARRAY LIST TO STORE THE RESULTS
         ArrayList<String> arrayList = new ArrayList<>();
@@ -130,16 +121,10 @@ public class ExistingPlaylist extends Playlist {
     }
 
 
-    // TODO CHECK IF THIS IS EVEN NECESSARY
-    public void addSongTOBEDELETED(Song song){
-
-        // WILL TAKE THE CURRENT SONG GET ITS FILENAME (PRIMARY KEY ON tblSong) AND THE PLAYLIST'S ID (PRIMARY KEY ON tblPlaylist)
-        // AND THEN INSERT THEM INTO OUR "INTERSECTION ENTITY" CALLED tblPlaylistSongs
-        DB.insertSQL("insert into tblPlaylistSongs values('"+song.getFileName()+"','"+this.playlistName+"')");
 
 
-    }
 
+    // TODO MAKE IT POSSIBLE FOR THE USER TO SELECT A PLAYLIST. THAT PLAYLIST WILL BE SET TO THE INSTANCE VARIABLE
 
     public String getPlaylistName(){
 

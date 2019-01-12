@@ -4,6 +4,7 @@ package sample;
 
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.image.Image;
 import javafx.scene.media.*;
@@ -87,7 +88,10 @@ public class Song {
     }
 
 
-    // GETTERS FROM THE DATABASE
+    // GETTERS FROM THE DATABASE. WE USE THESE WHEN WE KNOW THAT THE INFORMATION IS ALREADY IN THE DATABASE.
+    // IF WE USE THE OTHER GETTERS IT CAN CONFLICT WITH THE LISTENERS.
+    // THE GETTERS USUALLY FETCH THE DATA FASTER THAN THE LISTENERS ARE ABLE TO STORE THE VALUES.
+    // THIS WILL JUST GIVE US THE RESULT "NULL" WHICH IS UNWANTED. 
 
     public String getSongTitleFromDB() {
 
@@ -126,6 +130,7 @@ public class Song {
 
         return songAlbum;
     }
+
 
 
 

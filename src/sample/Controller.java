@@ -4,6 +4,7 @@ import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -11,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -35,18 +37,40 @@ import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class Controller implements Initializable {
+
+
     @FXML
     private MediaView mediaV;
 
-
-
     @FXML
     private Button addMusicButton;
+
+
+
+    // DISPLAYING PLAYLISTS AND SONGS
+    @FXML
+    private TableView<Song> defaultTableView;
+
+    // 1) Song Title
+
+    @FXML
+    private TableColumn songTitleColumn;
+
+    // 2) Song artist
+
+    @FXML
+    private TableColumn songArtistColumn;
+
+    // 3) Song album
+    @FXML
+    private TableColumn songAlbumColumn;
+
 
 
     @FXML
@@ -115,42 +139,11 @@ public class Controller implements Initializable {
 
 
 
-        /////////////////////////////////////////////////////
-
-        // TESTING AREA
-
-        // FIRST ARGUMENT IS SEARCH KEY
-
-        // SECOND ONE IS LIST VIEW
-
-        ExistingPlaylist existingPlaylist1 = new ExistingPlaylist();
-
-        // SEARCHING FOR THE PLAYLIST
-        existingPlaylist1.searchForPlaylist("rap",defaultListView);
-
-        // THIS WILL GIVE US ONE RESULT AND THEREFORE BE SELECTED AUTOMATICALLY
-
-        Song song2 = new Song("Work Out.mp3");
-
-        Song song3 = new Song("Look Back At It.mp3");
-
-        existingPlaylist1.addSong(song2);
-
-        existingPlaylist1.addSong(song3);
-
-
-        System.out.println("Song was added successfully");
-
-
-
-
-
-
 
         //////////////////////////////////////////////////////
 
 
-        mySong = new Song("Venom (Music From the Motion Picture).mp3");
+       /* mySong = new Song("Venom (Music From the Motion Picture).mp3");
 
         me = mySong.getMedia();
 
@@ -166,7 +159,7 @@ public class Controller implements Initializable {
         mp.setAutoPlay(false);
 
 
-        System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum());
+        System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum()); */
 
 
 
@@ -779,6 +772,8 @@ public class Controller implements Initializable {
 
         // WILL GET THE SELECTED ITEMS
         playlist = defaultListView.getSelectionModel().getSelectedItems();
+
+
 
         // WILL PRINT IT OUT IN THE CONSOLE
         System.out.println(playlist);

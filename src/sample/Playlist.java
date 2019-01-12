@@ -1,5 +1,17 @@
 package sample;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * This class is only for creating new playlists and modifying them afterwards.
@@ -11,6 +23,13 @@ package sample;
 public class Playlist {
 
     private String nameOfPlaylist;
+
+    private int amountOfSongs;
+
+    ArrayList<Song> songsFoundArrayList = new ArrayList<>();
+
+    // Will give you the possibility to get the complete TableView
+    private TableView <Song> songTableView;
 
 
     // DEFAULT CONSTRUCTOR
@@ -54,6 +73,205 @@ public class Playlist {
 
 
     }
+
+
+    private void countSongsInPlaylist(){
+
+        // WILL COUNT THE AMOUNT OF SONGS IN THE PLAYLIST
+        if (nameOfPlaylist!=null){
+
+            DB.selectSQL("SELECT COUNT(fldSongName) from tblPlaylistSongs where fldPlaylistName='"+nameOfPlaylist+"'");
+
+            amountOfSongs = Integer.parseInt(DB.getData());
+
+            System.out.println("There are " + amountOfSongs + " songs in the playlist named: " + nameOfPlaylist);
+
+            // WILL CLEAR THE BUFFER JUST FOR SAFETY
+            emptyData();
+
+        }
+
+
+
+
+    }
+
+
+    @FXML
+    public void displayAllSongs(TableView tableView, TableColumn titleColumn, TableColumn artistColumn, TableColumn albumColumn){
+
+        // Will not run unless there's a playlist name
+        if (nameOfPlaylist!=null){
+
+            // WILL COUNT THE AMOUNT OF SONGS IN THE PLAYLIST AND INITIALIZE "amountOfSongs"
+            // WILL CLEAR THE BUFFER FOR NEXT SQL STATEMENT
+            countSongsInPlaylist();
+
+
+
+            // WILL GET THE NAME OF THE SONGS IN THE PLAYLIST
+            DB.selectSQL("select fldSongName from tblPlaylistSongs where fldPlaylistName='"+nameOfPlaylist+"'");
+
+
+            if (amountOfSongs>0){
+
+                do{
+                    String data = DB.getData();
+                    if (data.equals(DB.NOMOREDATA)){
+                        System.out.println("NO MORE DATA");
+                        break;
+                    } else {
+
+                        System.out.println("Added this song to the Song ArrayList: " + data);
+
+                        // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
+                        Song song = new Song(data);
+
+
+
+                        // TODO MAKE IT DOWNLOAD THE PROPERTIES FROM THE DATA BASE AFTER THIS
+
+                        // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
+                        songsFoundArrayList.add(song);
+
+                    }
+
+                } while(true);
+
+                // WILL APPLY META DATA TO ALL THE SONGS IN THE ARRAY LIST
+                applyMetaDataToSongs();
+
+             //   System.out.println("Just testing to see if the metadata is actually here. For song 1 heres what we got: " + songsFoundArrayList.get(0).getSongTitle() + " and " + songsFoundArrayList.get(0).getSongArtist());
+
+
+                // WILL CONFIGURE THE ACTUAL DISPLAY DATA
+                setSongTableView(tableView,titleColumn,artistColumn,albumColumn);
+
+                // TODO MAKE IT SHOW UP ON EITHER THE LIST VIEW OR TABLE VIEW
+
+
+
+
+            }
+        } else {
+
+            System.out.println("Not able to display anything as no playlist were selected");
+
+        }
+    }
+
+
+    private void applyMetaDataToSongs(){
+
+
+        // WILL INITIALIZE THE VALUES FROM THE DATABASE
+
+        for (int i = 0; i < songsFoundArrayList.size(); i++) {
+
+            songsFoundArrayList.get(i).getSongTitleFromDB();
+
+            songsFoundArrayList.get(i).getSongArtistFromDB();
+
+            songsFoundArrayList.get(i).getSongAlbumFromDB();
+
+
+
+        }
+
+
+
+
+
+    }
+
+
+
+    @FXML
+    public void setSongTableView(TableView tableView, TableColumn titleColumn, TableColumn artistColumn, TableColumn albumColumn){
+
+        titleColumn.setCellValueFactory(new PropertyValueFactory<Song,String>("songTitle"));
+
+        artistColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("songArtist"));
+
+        albumColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("songAlbum"));
+
+
+
+
+
+
+        // WILL CALL A METHOD THAT GETS THE SONGS AND ITS PROPERTIES
+        tableView.setItems(getSongs());
+
+      //  tableView.getColumns().addAll(titleColumn,artistColumn,albumColumn);
+
+
+
+
+    }
+
+
+    /**
+     * This methods will return an ObservableList of Songs objects
+     * @return song objects
+     */
+
+    private ObservableList<Song> getSongs(){
+
+        ObservableList<Song> songs = FXCollections.observableArrayList();
+
+        for (int i = 0; i < amountOfSongs; i++) {
+
+            // WILL RETRIEVE EACH SONG FROM THE ARRAY LIST AND SAVE IT INTO THE OBSERVABLE LIST
+            songs.add(songsFoundArrayList.get(i));
+
+        }
+
+        return songs;
+
+
+    }
+
+
+
+
+
+
+
+    /**
+     * Used for storing SQL data in an ArrayList here in Java
+     * @param arrayList the ArrayList where you want to save it
+     */
+
+
+    // TODO MAY WANNA DELETE THIS NOW THAT WE ARE USING AN OBSERVABLE LIST
+    private void addSQLDataToArrayList(ArrayList arrayList){
+
+        int count = 0;
+
+        do{
+            String data = DB.getData();
+            if (data.equals(DB.NOMOREDATA)){
+
+
+                if (count==0){
+                    // If there's no SQL data to be saved this will show up in the console
+                    System.out.println("There was no SQL data to be saved! Check if you have loaded the methods in the right order");
+                }
+
+                break;
+            }else{
+                // WE ADD EACH ELEMENT TO THE ARRAY LIST
+                arrayList.add(data);
+                count+=1;
+
+            }
+        } while(true);
+
+
+    }
+
+
 
 
     /**
