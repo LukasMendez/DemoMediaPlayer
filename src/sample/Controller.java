@@ -4,19 +4,13 @@ import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.media.*;
 
 import javafx.fxml.FXML;
@@ -28,19 +22,16 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import sample.media.ExistingPlaylist;
+import playlistManagement.ExistingPlaylist;
+import playlistManagement.Library;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 public class Controller implements Initializable {
 
@@ -60,16 +51,16 @@ public class Controller implements Initializable {
     // 1) Song Title
 
     @FXML
-    private TableColumn songTitleColumn;
+    private TableColumn<Song, String> songTitleColumn;
 
     // 2) Song artist
 
     @FXML
-    private TableColumn songArtistColumn;
+    private TableColumn<Song, String>  songArtistColumn;
 
     // 3) Song album
     @FXML
-    private TableColumn songAlbumColumn;
+    private TableColumn<Song, String>  songAlbumColumn;
 
 
 
@@ -118,8 +109,17 @@ public class Controller implements Initializable {
     @FXML
     private Label fileLabel;
 
+
+    // NON-FXML VARIABLES
+
+
     private MediaPlayer mp;
     private Media me;
+
+    private boolean libraryVisible = false;
+
+    // USED FOR FETCHING THE ALBUM COVER
+    private MapChangeListener<String,Object> listener;
 
     private Song mySong; // TODO CHANGE THIS
 
@@ -139,11 +139,38 @@ public class Controller implements Initializable {
 
 
 
+        /////////////////////////////////////////////////////
+
+        // TESTING AREA
+
+
+     /*   Song song1 = new Song("a lot.mp3");
+
+        Song song2 = new Song("Work Out.mp3");
+
+        Song song3 = new Song("Jesus Walks.mp3");
+
+        Playlist myPlaylist = new Playlist("Shitty music");
+
+        myPlaylist.addSong(song1);
+
+        myPlaylist.addSong(song2); */
+
+        ExistingPlaylist myPlaylist = new ExistingPlaylist();
+
+        myPlaylist.setPlaylistName("I EAT ASS ALL NIGHT");
+
+        myPlaylist.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
+
+
+
+
+
 
         //////////////////////////////////////////////////////
 
 
-       /* mySong = new Song("Venom (Music From the Motion Picture).mp3");
+        mySong = new Song("Jesus Walks.mp3");
 
         me = mySong.getMedia();
 
@@ -159,7 +186,7 @@ public class Controller implements Initializable {
         mp.setAutoPlay(false);
 
 
-        System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum()); */
+        System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum());
 
 
 
@@ -302,6 +329,19 @@ public class Controller implements Initializable {
 
                mySong = new Song(file.getName());
 
+               // FIRST IT WILL JUST SET THE TITLE TO THE FILENAME AND PRESUME THAT THERE'S NO META DATA
+
+                mySong.setSongTitle(file.getName().substring(0,file.getName().length()-4));
+
+                mySong.setSongArtist("Unknown artist");
+
+                mySong.setSongAlbum("Unknown album");
+
+                DB.insertSQL("insert into tblSong VALUES('" + file.getName() +  "','" + mySong.getSongTitle() + "', '" + mySong.getSongArtist() + "','" + mySong.getSongAlbum()+"')");
+
+
+                // NEXT IT WILL ACTUALLY SEARCH FOR METADATA AND THEN UPDATE THE SQL TABLE IF IT FINDS SOMETHING
+
                mySong.getMedia().getMetadata().addListener(new MapChangeListener<String,Object>() {
                     @Override
                     public void onChanged(Change<? extends String, ? extends Object> ch) {
@@ -312,6 +352,8 @@ public class Controller implements Initializable {
 
                             String key = ch.getKey();
                             Object value = ch.getValueAdded();
+
+                            System.out.println(value);
 
                             switch (key) {
                                 case "album":
@@ -334,9 +376,9 @@ public class Controller implements Initializable {
 
                             if (doneSearching){
 
-                                mySong = mySong;
 
-                                DB.insertSQL("insert into tblSong VALUES('" + file.getName() +  "','" + mySong.getSongTitle() + "', '" + mySong.getSongArtist() + "','" + mySong.getSongAlbum()+"')"); // TODO FIX
+                                // WILL UPDATE THE EXISTING RECORD IN SQL
+                                DB.insertSQL("update tblSong set fldTitle='"+mySong.getSongTitle()+"', fldArtist='"+mySong.getSongArtist()+"', fldAlbum='"+mySong.getSongAlbum()+"' where fldName='"+mySong.getFileName()+"'");
 
                                 System.out.println("The data was added to the data base: " + file.getName() + ", " + mySong.getSongTitle() + ", "+ mySong.getSongArtist() + ", " + mySong.getSongAlbum());
                             }
@@ -353,6 +395,13 @@ public class Controller implements Initializable {
                 System.out.println(e.getMessage());
 
                 // e.printStackTrace();
+
+            }
+
+            if (libraryVisible){
+
+                // TODO MAKE IT WAIT A FEW SECONDS BEFORE REFRESHING THE LIBRARY
+                showAllSongs();
 
             }
 
@@ -383,51 +432,6 @@ public class Controller implements Initializable {
 
     }
 
-
-    ///////////////////////////////////
-    // VISUALIZATION OF THE METADATA //
-    ///////////////////////////////////
-
-
-    /**
-     * Will fetch metadata from the current song and display the album cover in the ImageView.
-     */
-    private void displayAlbumCover (){
-
-        // Will start to show a blank CD
-        File file = new File("src/sample/images/blank_cd.jpeg");
-
-        Image image = new Image(file.toURI().toString());
-
-        albumCoverView.setImage(image);
-
-
-        // However if an album cover is found in the meta-data it will be displayed
-        ObservableMap<String,Object> meta_data=me.getMetadata();
-
-        meta_data.addListener((MapChangeListener<String, Object>) ch -> {
-
-
-
-            if(ch.wasAdded()){
-
-                String key=ch.getKey();
-
-                Object value=ch.getValueAdded();
-
-               // System.out.println(key);
-
-               // System.out.println(value);
-
-                switch(key){
-                    case "image":
-                        albumCoverView.setImage((Image)value);
-                        break;
-                }
-            }
-        });
-
-    }
 
 
     /**
@@ -501,6 +505,8 @@ public class Controller implements Initializable {
         mp.currentTimeProperty().addListener(new InvalidationListener() {
             public void invalidated(Observable ov)
             {
+
+
                 updatesValues();
             }
         });
@@ -510,6 +516,8 @@ public class Controller implements Initializable {
             public void invalidated(Observable ov)
             {
                 if (durationSlider.isPressed()) { // It would set the time
+
+
                     // as specified by user by pressing
                     mp.seek(mp.getMedia().getDuration().multiply(durationSlider.getValue() / 100));
                 }
@@ -529,6 +537,10 @@ public class Controller implements Initializable {
     private void updatesValues() {
 
         mp.currentTimeProperty().addListener((observable, oldTime, newTime) -> {
+
+
+
+
             durationSlider.setValue(newTime.toMillis() / mp.getTotalDuration().toMillis() * 100);
             String setCurrentTime = "0:00";
             int timeCurrentTime = (int) (100 * mp.getCurrentTime().toMinutes());
@@ -586,7 +598,17 @@ public class Controller implements Initializable {
         volumeSlider.valueProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
+
+                // WILL MAKE SURE THAT IF THE MUSIC IS MUTED AND THE USER CHANGES THE VOLUME, THE FULL SOUND ICON WILL REAPPEAR
+                String pathVolumeIcon = "/sample/buttons/volumeFull.png";
+
+                buttonMuteandOn.setStyle("-fx-background-size: 30px 30px; " + "-fx-background-color:  #1C1C1C;" + "-fx-background-image: url('" + pathVolumeIcon + "'); ");
+
                 mp.setVolume(volumeSlider.getValue() / 100);
+
+                isMute=false;
+
+
             }
         }
 
@@ -595,6 +617,8 @@ public class Controller implements Initializable {
 
 
     /**
+     * Will mute and unmute sound, when you press the mute button.
+     * This method will also make sure, that the icons change as well.
      *
      */
 
@@ -611,7 +635,7 @@ public class Controller implements Initializable {
             System.out.println("IS THE SONG MUTED: " + isMute);
 
         }else{
-            mp.setVolume(100);
+            mp.setVolume(volumeSlider.getValue() / 100);
             isMute = false;
             String pathVolumeIcon = "/sample/buttons/volumeFull.png";
 
@@ -621,6 +645,11 @@ public class Controller implements Initializable {
         }
 
     }
+
+
+    /////////////////////////////
+    // CONFIGURE CURRENT SONG //
+    ////////////////////////////
 
 
 
@@ -640,11 +669,23 @@ public class Controller implements Initializable {
         // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
         mp.setAutoPlay(false);
 
+
+        // WILL CONTINUE TO USE THE PREVIOUS VOLUME SETTINGS, EVEN IF THE SONG HAS CHANGED
+        if (!isMute){
+
+            mp.setVolume(volumeSlider.getValue() / 100);
+        } else {
+
+            mp.setVolume(0);
+
+        }
+
+
         // WILL DISPLAY THE ALBUM COVER IF THERE IS ONE
-        displayAlbumCover();
+        displayAlbumCover(currentSong.getFileName());
 
         // WILL DISPLAY THE META DATA IN THE LABEL/TEXT
-        translateText(scrollingText, durationSlider,mySong.getSongTitleFromDB() + " - " + mySong.getSongArtistFromDB() + " - " + mySong.getSongAlbumFromDB());
+        translateText(scrollingText, durationSlider,currentSong.getSongTitleFromDB() + " - " + currentSong.getSongArtistFromDB() + " - " + currentSong.getSongAlbumFromDB());
 
         // WILL PRINT THE RELEVANT META DATA IN THE CONSOLE
 
@@ -659,14 +700,108 @@ public class Controller implements Initializable {
 
 
 
-    } // TODO FIX THIS METHOD
+    }
+
+
+    ///////////////////////////////////
+    // VISUALIZATION OF THE METADATA //
+    ///////////////////////////////////
+
+
+    /**
+     * Will fetch metadata from the current song and display the album cover in the ImageView.
+     */
+
+    private void displayAlbumCover (String fileName){
+
+        // Will create a new song temporary to retrieve the media
+        Song song = new Song(fileName);
+
+        // We will try to search the media for relevant meta-data
+        ObservableMap<String,Object> meta_data=song.getMedia().getMetadata();
+
+
+        // Will start to show a blank CD just in case there's no album cover available
+        File file = new File("src/sample/images/blank_cd.jpeg");
+
+        Image image = new Image(file.toURI().toString());
+
+        albumCoverView.setImage(image);
+
+
+
+        // We assign the listener instance to a variable. This will search for a metadata containing the value "image"
+        // It will then display it in the image view
+        listener = (MapChangeListener<String, Object>) ch -> {
+
+
+            if(ch.wasAdded()){
+
+                String key=ch.getKey();
+
+                Object value=ch.getValueAdded();
+
+
+                switch(key){
+                    case "image":
+
+
+                        albumCoverView.setImage((Image)value);
+
+                        // TODO FIND A WAY TO REMOVE THE LISTENER
+                        break;
+
+                }
+            }
+        };
+
+
+        // Activate the listener
+        meta_data.addListener(listener);
+        System.out.println("+ Added listener");
+
+
+
+    }
+
+    @FXML
+    private void showAllSongs(){
+
+        defaultListView.setMaxWidth(0);
+
+        defaultListView.setDisable(true);
+
+        libraryVisible=true;
+
+        Library library = new Library();
+
+        library.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     private void setListView(String searchKeyword){
-
-
-
-
 
 
 
@@ -768,15 +903,25 @@ public class Controller implements Initializable {
 
         String message = "";
 
-        ObservableList<String> playlist;
+        // ObservableList<String> playlist;
 
         // WILL GET THE SELECTED ITEMS
-        playlist = defaultListView.getSelectionModel().getSelectedItems();
-
-
+        Song mySong = defaultTableView.getSelectionModel().getSelectedItem();
 
         // WILL PRINT IT OUT IN THE CONSOLE
-        System.out.println(playlist);
+        System.out.println(mySong.getFileName());
+
+        // WILL STOP THE MUSIC IF THERE WAS ANY PLAYING
+        handleStop();
+
+
+
+        setCurrentSong(mySong);
+
+        // WILL AUTOMATICALLY PLAY THE SONG WHEN YOU CLICK ON IT
+      //  mp.setAutoPlay(true); TODO CURRENTLY CLASHING WITH THE PLAY CONTROLS
+
+
 
     }
 

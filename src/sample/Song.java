@@ -21,7 +21,7 @@ public class Song {
     private String songTitle;
     private String songArtist;
     private String songAlbum;
-    private int songID;
+    private Image albumCover;
 
     private Media media;
 
@@ -60,23 +60,40 @@ public class Song {
 
     public String getSongTitle() {
 
+            return songTitle;
 
-        return songTitle;
+
 
     }
 
     public String getSongArtist() {
 
 
-        return songArtist;
+            return songArtist;
+
+
+
     }
 
 
     public String getSongAlbum() {
 
+            return songAlbum;
 
-        return songAlbum;
+
+
     }
+
+    public boolean noMetaData(){
+
+
+        return true;
+
+
+    }
+
+
+
 
     public Media getMedia() {
         return media;
