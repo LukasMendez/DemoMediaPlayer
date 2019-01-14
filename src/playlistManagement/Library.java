@@ -96,7 +96,7 @@ public class Library extends Playlist {
 
             } else {
 
-                System.out.println("There's no songs with that name. Please check for typos!");
+                System.out.println("There's no songs in the library");
             }
 
     }

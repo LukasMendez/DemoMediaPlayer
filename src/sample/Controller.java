@@ -1,11 +1,19 @@
 package sample;
 
+// HEJ KIM HVORDAN GÅR DET? FINDER DU NOGET DU KAN BRUGE? :P
+
+
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import playlistManagement.ExistingPlaylist;
 import playlistManagement.Library;
@@ -30,8 +39,7 @@ import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.util.*;
 
 public class Controller implements Initializable {
 
@@ -106,8 +114,11 @@ public class Controller implements Initializable {
     private Button playPauseButton;
 
 
-    @FXML
-    private Label fileLabel;
+    // PLAYLIST CONFIGURATION
+
+
+   @FXML
+   private Label fileLabel;
 
 
     // NON-FXML VARIABLES
@@ -118,11 +129,22 @@ public class Controller implements Initializable {
 
     private boolean libraryVisible = false;
 
+    private ArrayList<Song> currentPlayQueue;
+
+    private ArrayList<Song> temporaryPlayQueue; // TODO CHECK IF NEEDED
+
+    private int currentQueueNumberIndex;
+
+
     // USED FOR FETCHING THE ALBUM COVER
     private MapChangeListener<String,Object> listener;
 
     private Song mySong; // TODO CHANGE THIS
 
+
+    private Library library;
+
+    private boolean isOnShuffle = false;
 
     private boolean isPlaying = false; // Will check if the music player is playing
 
@@ -158,12 +180,10 @@ public class Controller implements Initializable {
 
         ExistingPlaylist myPlaylist = new ExistingPlaylist();
 
-        myPlaylist.setPlaylistName("I EAT ASS ALL NIGHT");
+        myPlaylist.setPlaylistName("Best Mumble Rappers");
+
 
         myPlaylist.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
-
-
-
 
 
 
@@ -284,6 +304,143 @@ public class Controller implements Initializable {
     }
 
 
+    @FXML
+    private void playNextSong(){
+
+
+        try{
+
+            isPlaying=false;
+
+            System.out.println(currentPlayQueue.get(currentQueueNumberIndex+1).getFileName());
+
+            currentQueueNumberIndex++;
+
+            mp.stop();
+
+            setCurrentSong(currentPlayQueue.get(currentQueueNumberIndex));
+
+            handlePlay();
+
+            defaultTableView.getSelectionModel().select(currentQueueNumberIndex);
+
+
+
+        } catch (Exception e){
+
+
+            indexOutOfBoundsHandler();
+
+        }
+
+
+
+
+    }
+
+    @FXML
+    private void playPreviousSong(){
+
+
+        try{
+
+            isPlaying=false;
+
+            System.out.println(currentPlayQueue.get(currentQueueNumberIndex-1).getFileName());
+
+            currentQueueNumberIndex--;
+
+            mp.stop();
+
+            setCurrentSong(currentPlayQueue.get(currentQueueNumberIndex));
+
+            handlePlay();
+
+            defaultTableView.getSelectionModel().select(currentQueueNumberIndex);
+
+
+
+        } catch (Exception e){
+
+
+            indexOutOfBoundsHandler();
+
+        }
+
+
+
+
+    }
+
+    /**
+     * Will handle a situation where you try to skip or go back to a song that is out of range.
+     * The method resets the index number back to zero and stops the music from playing.
+     */
+
+    private void indexOutOfBoundsHandler(){
+
+
+        System.out.println("Index out of bounds. Resetting the current queue number");
+
+        currentQueueNumberIndex = 0;
+
+        mp.stop();
+
+        setCurrentSong(currentPlayQueue.get(currentQueueNumberIndex));
+
+        isPlaying=true;
+
+        handlePlay();
+
+        defaultTableView.getSelectionModel().select(0);
+
+
+
+    }
+
+
+    @FXML
+    private void handleShuffle(){
+
+        // TAKES A COPY OF THE PREVIOUS ARRAY LIST AND STORES IT TEMPORARY IN CASE THE USER DISABLES SHUFFLE MODE
+        temporaryPlayQueue = new ArrayList<>(currentPlayQueue);
+
+        if (!isOnShuffle){
+
+
+
+            // TODO FIX THIS METHOD TO USE MATH RANDOM AND THEN CHANGE CURRENTQUEUENUMBERINDEX
+
+
+        }
+
+
+
+    }
+
+
+    private ArrayList<Song> randomizeArrayList(ArrayList arrayList) {
+
+
+        isOnShuffle=true;
+
+
+        Collections.shuffle(arrayList);
+
+
+        System.out.println("IS MUSIC ON SHUFFLE MODE: " + arrayList);
+
+        return arrayList;
+
+    }
+
+
+
+
+    ////////////////////////////////
+    // ADDING SONGS AND PLAYLIST //
+    ////////////////////////////////
+
     /**
      * This method will open a popup window using FileChooser and let the user select a file in the format MP3 or WAV.
      * The file will be copied to a specified location, which in this case is the media folder in our sample folder.
@@ -291,11 +448,6 @@ public class Controller implements Initializable {
      * the database.
      *
      */
-
-    ////////////////////////////////
-    // ADDING SONGS AND PLAYLIST //
-    ////////////////////////////////
-
 
     @FXML
     private void addSongToLibrary(){
@@ -408,30 +560,6 @@ public class Controller implements Initializable {
         }
 
     }
-
-
-    /**
-     * Will change the song playing
-     * @param filename the name of the song. Will be .mp3 or .wav
-     */
-
-    // TODO CHECK IF THIS IS EVEN NECESSARY
-    private void changeSong(String filename){
-
-        // Build the path to the location of the media file
-        String path = new File("src/sample/media/"+filename).getAbsolutePath();
-        // Create new Media object (the actual media content)
-        me = new Media(new File(path).toURI().toString());
-        // Create new MediaPlayer and attach the media to be played
-        mp = new MediaPlayer(me);
-
-        // Will play the selected song
-        mp.play();
-
-
-
-    }
-
 
 
     /**
@@ -647,9 +775,63 @@ public class Controller implements Initializable {
     }
 
 
-    /////////////////////////////
-    // CONFIGURE CURRENT SONG //
-    ////////////////////////////
+    ///////////////////////////////
+    // CONFIGURE SONG AND QUEUE //
+    //////////////////////////////
+
+    Iterator<String> itr ;
+
+
+    private void setPlayQueue(ArrayList playQueueArrayList){
+
+        currentPlayQueue = playQueueArrayList;
+
+        // WILL CHECK THE LOCATION OF THE SONG YOU ARE CURRENTLY LISTENING TO. THIS IS SO THAT IT WONT RESTART THE PLAYLIST
+        currentQueueNumberIndex = -1;
+
+
+
+        for (int i = 0; i < currentPlayQueue.size(); i++) {
+
+            if (currentPlayQueue.get(i).getFileName().equals(mySong.getFileName())){
+
+                currentQueueNumberIndex=i;
+
+            }
+
+
+        }
+
+        // IF NO SONG IS PLAYING THEN IT WILL JUST BEGIN THE PLAYLIST FROM THE FIRST SONG
+        if (currentQueueNumberIndex==-1){
+
+            currentQueueNumberIndex=0;
+
+        }
+
+
+        System.out.println("Current Index Number is: " + currentQueueNumberIndex);
+        System.out.println("Actual song number playing is: " + (currentQueueNumberIndex + 1));
+
+
+    }
+
+
+    /**
+     * TODO WRITE A DESCRIPTION
+     * @param songArrayList
+     */
+
+    private void autoSkipping(ArrayList songArrayList){
+
+
+
+
+
+
+    }
+
+
 
 
 
@@ -659,6 +841,9 @@ public class Controller implements Initializable {
 
         // Will pass the parameter to the constructor
         // Song currentSong = new Song(fileName);
+
+        // WILL MAKE A REFERENCE TO INSTANCE VARIABLE
+        mySong = currentSong; //TODO CHECK IF THIS IS NECESSARY
 
         me = currentSong.getMedia();
 
@@ -773,16 +958,12 @@ public class Controller implements Initializable {
 
         libraryVisible=true;
 
-        Library library = new Library();
+        library = new Library();
 
         library.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
 
-
-
-
-
-
-
+        // WILL GIVE US THE PLAY QUEUE
+        setPlayQueue(library.getSongsFoundArrayList());
 
 
     }
@@ -906,10 +1087,10 @@ public class Controller implements Initializable {
         // ObservableList<String> playlist;
 
         // WILL GET THE SELECTED ITEMS
-        Song mySong = defaultTableView.getSelectionModel().getSelectedItem();
+        mySong = defaultTableView.getSelectionModel().getSelectedItem();
 
         // WILL PRINT IT OUT IN THE CONSOLE
-        System.out.println(mySong.getFileName());
+        System.out.println("Playing: " + mySong.getFileName());
 
         // WILL STOP THE MUSIC IF THERE WAS ANY PLAYING
         handleStop();
@@ -918,6 +1099,12 @@ public class Controller implements Initializable {
 
         setCurrentSong(mySong);
 
+        isPlaying=false;
+        handlePlay();
+
+        setPlayQueue(library.getSongsFoundArrayList());
+
+
         // WILL AUTOMATICALLY PLAY THE SONG WHEN YOU CLICK ON IT
       //  mp.setAutoPlay(true); TODO CURRENTLY CLASHING WITH THE PLAY CONTROLS
 
@@ -925,6 +1112,23 @@ public class Controller implements Initializable {
 
     }
 
+    private boolean windowOpen = false;
+
+    /**
+     * Will initialize a window, where the user gets to choose a name for his new playlist.
+     * @throws IOException
+     */
+    @FXML
+    private void createNewPlaylist() throws IOException {
+
+
+        PopupController playlistCreationWindow = new PopupController();
+
+        playlistCreationWindow.createPlaylistPopup();
+
+
+
+    }
 
 
 

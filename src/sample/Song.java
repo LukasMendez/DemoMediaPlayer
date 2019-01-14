@@ -18,12 +18,15 @@ public class Song {
 
     private String fileName;
 
+    private String source;
+
     private String songTitle;
     private String songArtist;
     private String songAlbum;
     private Image albumCover;
 
     private Media media;
+    private MediaPlayer mediaPlayer;
 
 
 
@@ -34,8 +37,12 @@ public class Song {
         // The path to the selected song
         String path = new File("src/sample/media/" + fileName).getAbsolutePath();
 
+        source = "src/sample/media/"+fileName;
+
         // Adding the path to the media
         media = new Media(new File(path).toURI().toString());
+
+        mediaPlayer= new MediaPlayer(media);
 
 
     }
@@ -99,9 +106,23 @@ public class Song {
         return media;
     }
 
+    public MediaPlayer getMediaPlayer(){
+
+
+
+        return mediaPlayer;
+
+    }
+
     public String getFileName(){
 
         return fileName;
+    }
+
+    public String getSource(){
+
+        return source;
+
     }
 
 

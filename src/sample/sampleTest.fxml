@@ -57,9 +57,9 @@
                                  <children>
                                     <Button fx:id="stopButton" focusTraversable="false" mnemonicParsing="false" onAction="#handleStop" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/stop.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
                                     <Pane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="64.0" prefWidth="27.0" />
-                                    <Button fx:id="previousButton" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/previous.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                                    <Button fx:id="previousButton" focusTraversable="false" mnemonicParsing="false" onAction="#playPreviousSong" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/previous.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
                                     <Button fx:id="playPauseButton" defaultButton="true" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/play.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
-                                    <Button fx:id="nextButton" focusTraversable="false" mnemonicParsing="false" onAction="#handlePlay" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/next.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
+                                    <Button fx:id="nextButton" focusTraversable="false" mnemonicParsing="false" onAction="#playNextSong" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: url(&quot;sample/buttons/next.png&quot;); -fx-background-size: 64px 64px; -fx-background-color: #1C1C1C;" />
                                  </children>
                               </HBox>
                            </children>
@@ -69,6 +69,7 @@
                   <HBox alignment="TOP_RIGHT" prefHeight="209.0" prefWidth="540.0" style="-fx-background-color: #1C1C1C;">
                      <children>
                         <MediaView fx:id="mediaV" fitHeight="50.0" fitWidth="50.0" />
+                        <Button fx:id="shuffleButton" disable="true" mnemonicParsing="false" text="Shuffle" visible="false" />
                         <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0">
                            <children>
                               <Pane prefHeight="41.0" prefWidth="100.0" />
@@ -93,15 +94,16 @@
          <center>
             <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1C1C1C;" BorderPane.alignment="CENTER">
                <children>
+                  <Button fx:id="testButton2" mnemonicParsing="false" onAction="#createNewPlaylist" text="Next song" />
                   <Button fx:id="testButton" mnemonicParsing="false" onAction="#getPlaylistSelected" text="Test Button (Select song)" />
                   <HBox alignment="TOP_RIGHT" prefHeight="507.0" prefWidth="812.0" VBox.vgrow="ALWAYS">
                      <children>
                         <ListView fx:id="defaultListView" prefHeight="474.0" prefWidth="782.0" style="-fx-background-color: #E6E6E6;" HBox.hgrow="ALWAYS" />
                         <TableView fx:id="defaultTableView" focusTraversable="false" prefHeight="478.0" prefWidth="1156.0" style="-fx-focus-color: transparent;" HBox.hgrow="ALWAYS">
                           <columns>
-                            <TableColumn fx:id="songTitleColumn" prefWidth="128.5" text="Song title" />
-                            <TableColumn fx:id="songArtistColumn" minWidth="0.0" prefWidth="184.0" text="Artist" />
-                              <TableColumn fx:id="songAlbumColumn" prefWidth="164.0" text="Album" />
+                            <TableColumn fx:id="songTitleColumn" prefWidth="128.5" sortable="false" text="Song title" />
+                            <TableColumn fx:id="songArtistColumn" minWidth="0.0" prefWidth="184.0" sortable="false" text="Artist" />
+                              <TableColumn fx:id="songAlbumColumn" prefWidth="164.0" sortable="false" text="Album" />
                           </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -123,11 +125,11 @@
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="356.5" minHeight="10.0" prefHeight="136.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="614.0" minHeight="10.0" prefHeight="584.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="356.5" minHeight="10.0" prefHeight="189.33334350585938" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="614.0" minHeight="10.0" prefHeight="530.6666564941406" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="239.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;">
+            <VBox alignment="TOP_CENTER" prefHeight="173.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;">
                <children>
                   <Pane prefHeight="27.0" prefWidth="268.0" />
                   <TextField maxWidth="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="220.0" promptText="Search" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-focus-color: transparent; -fx-background-insets: -1.4, 0, 1, 2;">
@@ -148,13 +150,26 @@
                         </ImageView>
                      </graphic>
                   </Button>
+                  <Pane prefHeight="14.0" prefWidth="268.0" />
+                  <Button fx:id="addPlayListButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#createNewPlaylist" prefHeight="51.0" prefWidth="268.0" style="-fx-background-color: #1C1C1C; -fx-background-radius: 0; -fx-border-radius: 0;" text="         Add Playlist" textFill="WHITE">
+                     <font>
+                        <Font name="Arial" size="18.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@buttons/playlists.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
                </children>
             </VBox>
-            <VBox alignment="BOTTOM_LEFT" prefHeight="535.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" GridPane.rowIndex="1">
+            <VBox alignment="BOTTOM_LEFT" prefHeight="546.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" GridPane.rowIndex="1">
                <children>
-                  <ScrollPane prefHeight="202.0" prefWidth="268.0" style="-fx-background: #2E2E2E; -fx-border-color: #2E2E2E;">
+                  <ScrollPane prefHeight="203.0" prefWidth="268.0" style="-fx-background: #2E2E2E; -fx-border-color: #2E2E2E;">
                      <content>
-                        <VBox prefHeight="191.0" prefWidth="250.0">
+                        <VBox prefHeight="177.0" prefWidth="250.0">
                            <children>
                               <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 1" textFill="WHITE" />
                               <Button alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="25.0" prefWidth="252.0" style="-fx-background-color: #2E2E2E;" text="Playlist 2" textFill="WHITE" />

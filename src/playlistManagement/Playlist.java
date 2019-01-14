@@ -174,6 +174,15 @@ public class Playlist {
         }
     }
 
+    public ArrayList<Song> getSongsFoundArrayList(){
+
+
+        return songsFoundArrayList;
+
+
+    }
+
+
 
     protected void applyMetaDataToSongs(){
 

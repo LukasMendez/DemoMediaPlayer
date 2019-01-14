@@ -96,6 +96,7 @@ public class ExistingPlaylist extends Playlist {
             DB.selectSQL("SELECT fldName FROM tblPlaylist\n" +
                     "                    WHERE CHARINDEX('"+playlistName+"', fldName) > 0");
 
+
             displayData(listView);
 
         } else {
