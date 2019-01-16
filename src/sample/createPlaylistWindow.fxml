@@ -16,7 +16,7 @@
                <font>
                   <Font name="Arial" size="18.0" />
                </font></Button>
-            <Button layoutX="50.0" layoutY="151.0" mnemonicParsing="false" style="-fx-background-color: #1C1C1C; -fx-border-radius: 0; -fx-background-radius: 0;" text="Cancel" textFill="WHITE">
+            <Button fx:id="cancelButton" layoutX="50.0" layoutY="151.0" mnemonicParsing="false" onAction="#cancelCreation" style="-fx-background-color: #1C1C1C; -fx-border-radius: 0; -fx-background-radius: 0;" text="Cancel" textFill="WHITE">
                <font>
                   <Font name="Arial" size="18.0" />
                </font>

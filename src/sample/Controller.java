@@ -5,15 +5,10 @@ package sample;
 
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -29,7 +24,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import playlistManagement.ExistingPlaylist;
 import playlistManagement.Library;
@@ -73,7 +67,7 @@ public class Controller implements Initializable {
 
 
     @FXML
-    private ListView defaultListView;
+    private ListView<ExistingPlaylist> defaultListView;
 
 
     // DURATION OF THE SONG
@@ -118,6 +112,10 @@ public class Controller implements Initializable {
 
 
    @FXML
+   private ListView<String> allPlaylistsListView;
+
+
+   @FXML
    private Label fileLabel;
 
 
@@ -128,6 +126,8 @@ public class Controller implements Initializable {
     private Media me;
 
     private boolean libraryVisible = false;
+
+    private ExistingPlaylist allPlaylists;
 
     private ArrayList<Song> currentPlayQueue;
 
@@ -150,6 +150,16 @@ public class Controller implements Initializable {
 
     private boolean isMute = false; // Will check if the music is muted or not
 
+    // TODO CHECK IF NEEDED
+    private boolean selectedNewPlaylist = false;
+
+    // TODO CHECK IF NEEDED
+    private boolean showSelectedItems = true;
+
+    private String currentPlaylistPlaying;
+
+
+
 
     /**
      * This method is invoked automatically in the beginning. Used for initializing, loading data etc.
@@ -158,6 +168,10 @@ public class Controller implements Initializable {
      * @param resources
      */
     public void initialize(URL location, ResourceBundle resources) {
+
+
+        allPlaylists = new ExistingPlaylist();
+
 
 
 
@@ -178,19 +192,35 @@ public class Controller implements Initializable {
 
         myPlaylist.addSong(song2); */
 
-        ExistingPlaylist myPlaylist = new ExistingPlaylist();
-
-        myPlaylist.setPlaylistName("Best Mumble Rappers");
 
 
-        myPlaylist.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
+        // WILL DISPLAY ALL THE PLAYLISTS ON THE SIDE PANEL
+        displayAllPlaylist(allPlaylistsListView);
+
+
+    //    ExistingPlaylist myPlaylist = new ExistingPlaylist();
+
+      //  myPlaylist.setPlaylistName("Best Mumble Rappers");
+
+
+        // myPlaylist.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
 
 
 
         //////////////////////////////////////////////////////
 
 
-        mySong = new Song("Jesus Walks.mp3");
+        Library defaultLibrary = new Library();
+
+        defaultLibrary.retrieveAllSongs();
+
+        System.out.println("Song number 1 is: " + defaultLibrary.getSongsFoundArrayList().get(0).getFileName());
+
+        currentPlayQueue = defaultLibrary.getSongsFoundArrayList();
+
+        defaultTableView.getSelectionModel().select(0);
+
+        mySong = new Song(currentPlayQueue.get(0).getFileName());
 
         me = mySong.getMedia();
 
@@ -205,14 +235,24 @@ public class Controller implements Initializable {
         // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
         mp.setAutoPlay(false);
 
+        showLibrarySongs();
+
 
         System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum());
 
 
+        ExistingPlaylist myoldOne = new ExistingPlaylist();
+
+        myoldOne.setPlaylistName("BootyGains");
 
 
+      //  Song prutskid = new Song("7 Days.mp3");
 
+       // Song prutskid2 = new Song("Gold Digger.mp3");
 
+       // myoldOne.addSong(prutskid);
+
+       // myoldOne.addSong(prutskid2);
 
     }
 
@@ -247,6 +287,8 @@ public class Controller implements Initializable {
 
             // METHOD THAT MANAGES THE DURATION AND MAKES THE USER ABLE TO FAST FORWARD FOR EXAMPLE
             durationManagement();
+
+
 
 
 
@@ -322,7 +364,29 @@ public class Controller implements Initializable {
 
             handlePlay();
 
-            defaultTableView.getSelectionModel().select(currentQueueNumberIndex);
+         //   String nameOfCurrentSelected = allPlaylistsListView.getSelectionModel().getSelectedItem();
+
+            System.out.println("Selected mode is on: " + showSelectedItems);
+
+
+            // WILL CHECK IF IT SHOULD ENTER SELECT MODE
+         //   checkIfCurrentQueueEqualsSelected();
+
+
+            if (showSelectedItems){ // TODO HAS TO BE TRUE. REVERT
+
+                // TODO FIX THIS METHOD SO THAT IT KEEPS TRACK OF THE SONGS - ONLY PROBLEM NOW IS THAT PLAY QUEUE IS DOUBLE FIRST TIME
+
+                defaultTableView.getSelectionModel().select(currentQueueNumberIndex);
+
+              //  System.out.println("Selected playlist is called: " + allPlaylistsListView.getSelectionModel().getSelectedItem());
+
+
+
+
+            }
+
+
 
 
 
@@ -553,7 +617,7 @@ public class Controller implements Initializable {
             if (libraryVisible){
 
                 // TODO MAKE IT WAIT A FEW SECONDS BEFORE REFRESHING THE LIBRARY
-                showAllSongs();
+                showLibrarySongs();
 
             }
 
@@ -612,29 +676,9 @@ public class Controller implements Initializable {
 
         // DURATION MANAGEMENT
 
-        System.out.println(mp.getTotalDuration().toMinutes());
-
-
-        String totalDuration = "";
-        int t = (int) ( 100 * mp.getTotalDuration().toMinutes());
-
-        int hourTotalDuration = t / 3600;
-        int minTotalDuration = t/100;
-        int secTotalDuration = 60 * (t%100);
-
-        if(hourTotalDuration==0){
-            System.out.printf("%.2s:%.2s \n",minTotalDuration,secTotalDuration);
-            String setTotalDuration = totalDuration.format("%.2s:%.2s",minTotalDuration,secTotalDuration);
-            displayTotalDuration.setText(setTotalDuration);
-        }else {
-            System.out.printf("%.2s:%.2s:%.2s \n", hourTotalDuration, minTotalDuration, secTotalDuration);
-        }
-
         mp.currentTimeProperty().addListener(new InvalidationListener() {
             public void invalidated(Observable ov)
             {
-
-
                 updatesValues();
             }
         });
@@ -654,6 +698,8 @@ public class Controller implements Initializable {
 
 
 
+
+
     }
 
 
@@ -664,12 +710,46 @@ public class Controller implements Initializable {
      */
     private void updatesValues() {
 
+
         mp.currentTimeProperty().addListener((observable, oldTime, newTime) -> {
 
+            // System.out.println(mp.getTotalDuration().toMinutes());
 
+            int t = (int) (100 * mp.getTotalDuration().toMinutes());
 
+            String setTotalDuration = "0:00";
+            int hourTotalDuration = t / 3600;
+            int minTotalDuration = t / 100;
+            int secTotalDuration = 60 * (t % 100);
+
+            if (hourTotalDuration == 0) {
+                if (secTotalDuration < 90) {
+                    // System.out.printf("%.2s:00 \n", minTotalDuration);
+                    setTotalDuration = String.format("%.2s:00", minTotalDuration);
+                } else if (secTotalDuration < 1000) {
+                    // System.out.printf("%.2s:0%.1s \n", minTotalDuration, minTotalDuration);
+                    setTotalDuration = String.format("%.2s:0%.1s", minTotalDuration, secTotalDuration);
+                } else {
+                    // System.out.printf("%.2s:%.2s \n", minTotalDuration, secTotalDuration);
+                    setTotalDuration = String.format("%.2s:%.2s", minTotalDuration, secTotalDuration);
+                }
+            } else {
+                if (secTotalDuration < 90) {
+                    // System.out.printf("%.2:%.2s:00 \n", hourTotalDuration, minTotalDuration);
+                    setTotalDuration = String.format("%.2s%.2s:00", hourTotalDuration, minTotalDuration);
+                } else if (secTotalDuration < 1000) {
+                    // System.out.printf("%.2:%.2s:0%.1s \n", hourTotalDuration, minTotalDuration, secTotalDuration);
+                    setTotalDuration = String.format("%.2s%.2s:0%.1s", hourTotalDuration, minTotalDuration, secTotalDuration);
+                } else {
+                    // System.out.printf("%.2s:%.2s:%.2s \n", hourTotalDuration, minTotalDuration, secTotalDuration);
+                    setTotalDuration = String.format("%.2:%.2s:%.2s", hourTotalDuration, minTotalDuration, secTotalDuration);
+                }
+            }
 
             durationSlider.setValue(newTime.toMillis() / mp.getTotalDuration().toMillis() * 100);
+
+
+
             String setCurrentTime = "0:00";
             int timeCurrentTime = (int) (100 * mp.getCurrentTime().toMinutes());
 
@@ -702,8 +782,12 @@ public class Controller implements Initializable {
                 }
 
             }
+            displayTotalDuration.setText(setTotalDuration);
             displayCurrentTime.setText(setCurrentTime);
+
         });
+
+
 
 
         //System.out.println(mp.getCurrentTime().toMinutes());      // Debug
@@ -855,6 +939,7 @@ public class Controller implements Initializable {
         mp.setAutoPlay(false);
 
 
+
         // WILL CONTINUE TO USE THE PREVIOUS VOLUME SETTINGS, EVEN IF THE SONG HAS CHANGED
         if (!isMute){
 
@@ -949,24 +1034,83 @@ public class Controller implements Initializable {
 
     }
 
+    ////////////////////////////////////
+    // DISPLAYING SONGS AND PLAYLISTS //
+    ////////////////////////////////////
+
+
     @FXML
-    private void showAllSongs(){
+    private void showLibrarySongs(){
+
+        // WILL CHECK IF USER IS IN THE PLAYLIST THAT WE ARE LISTENING TO
+
+        tempPlaylistName="Library";
+
+        if (tempPlaylistName.equals(listeningPlaylistName)){
+
+            showSelectedItems=true;
+
+        } else {
+
+            showSelectedItems=false;
+
+        }
+
+
+        System.out.println("You pressed Library");
 
         defaultListView.setMaxWidth(0);
 
         defaultListView.setDisable(true);
 
+        // BOOLEANS CHANGED:
+
         libraryVisible=true;
+
+        // TODO MAKE SURE THAT THIS IS ONLY THE NEXT TIME YOU PRESS IT, AND NOT DURING INITIALIZATION
+        selectedNewPlaylist=true;
+
 
         library = new Library();
 
         library.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
 
+        // TESTING AREA
+
+
+        library.resetArrayList();
+
+        library.retrieveAllSongs();
+
+        library.getSongsFoundArrayList();
+
+        temporaryPlayQueue = library.getSongsFoundArrayList();
+
+        System.out.println("This is what I got from library index 1: " + library.getSongsFoundArrayList().get(0).getFileName() + " - Check if correct");
+
+        System.out.println("The size of temporaryPlayQueue is: " + temporaryPlayQueue.size());
+
+        //
+
+
         // WILL GIVE US THE PLAY QUEUE
-        setPlayQueue(library.getSongsFoundArrayList());
+    //    setPlayQueue(library.getSongsFoundArrayList());
 
 
     }
+
+    private void displayAllPlaylist(ListView listView){
+
+        allPlaylists = new ExistingPlaylist();
+
+
+        allPlaylists.showAllPlaylists(listView);
+
+    }
+
+
+
+
 
 
 
@@ -1076,41 +1220,161 @@ public class Controller implements Initializable {
 
     private void songPlayingNow(Song song){
 
+    }
+
+
+    // VARIABLES THAT WILL CHECK IF YOU SELECTED A NEW PLAYLIST OR NOT
+
+    private String tempPlaylistName = "Library";
+
+    private String listeningPlaylistName = "Library";
+
+
+    private void checkIfCurrentQueueEqualsSelected(){
+
+        if (tempPlaylistName.equals(listeningPlaylistName)){
+
+            showSelectedItems=true;
+
+        } else {
+
+            showSelectedItems=false;
+
+        }
+
+
+    }
+
+
+
+    @FXML
+    private void getSongSelected(){
+
+
+       try{
+
+           mySong = defaultTableView.getSelectionModel().getSelectedItem();
+
+           // WILL PRINT IT OUT IN THE CONSOLE
+           System.out.println("Playing: " + mySong.getFileName());
+
+           // WILL STOP THE MUSIC IF THERE WAS ANY PLAYING
+           handleStop();
+
+
+           setCurrentSong(mySong);
+
+
+           listeningPlaylistName=tempPlaylistName;
+
+           System.out.println("1. Song comes from: " + listeningPlaylistName);
+
+           showSelectedItems=true;
+
+
+           System.out.println("2. Playlist that was selected las time: " + tempPlaylistName);
+
+           // TESTING
+
+
+           if (selectedNewPlaylist){
+
+               System.out.println("Selected new playlist and started playing it");
+
+              // currentPlaylistPlaying= defaultListView.getSelectionModel().getSelectedItem().getPlaylistName();
+
+             //  System.out.println("+Current playlist is: " + currentPlaylistPlaying);
+
+               for (int i = 0; i < temporaryPlayQueue.size(); i++) {
+
+                   System.out.println("---Play queue to be played: " + temporaryPlayQueue.get(i).getFileName());
+
+               }
+
+
+               // WILL CONFIGURE A NEW QUEUE GIVEN THAT THE USER SELECTED A NEW PLAYLIST AND A NEW SONG AS WELL
+               setPlayQueue(temporaryPlayQueue);
+
+
+           }
+
+           // WILL AUTOMATICALLY PLAY THE SONG WHEN YOU CLICK ON IT
+           //  mp.setAutoPlay(true); TODO CURRENTLY CLASHING WITH THE PLAY CONTROLS
+
+
+       } catch (Exception e){
+
+           // TODO EXCEPTION ERROR
+
+           System.out.println(e.getMessage());
+           System.out.println("Nothing was selected, couldn't play a song");
+
+       }
+
+
+
 
     }
 
     @FXML
     private void getPlaylistSelected(){
 
-        String message = "";
 
-        // ObservableList<String> playlist;
+        selectedNewPlaylist = true;
 
-        // WILL GET THE SELECTED ITEMS
-        mySong = defaultTableView.getSelectionModel().getSelectedItem();
+        String selectedPlaylist = allPlaylistsListView.getSelectionModel().getSelectedItem();
 
-        // WILL PRINT IT OUT IN THE CONSOLE
-        System.out.println("Playing: " + mySong.getFileName());
+        System.out.println("Name of selected playlist: " + selectedPlaylist);
 
-        // WILL STOP THE MUSIC IF THERE WAS ANY PLAYING
-        handleStop();
+        ExistingPlaylist existingPlaylist = new ExistingPlaylist();
+
+        existingPlaylist.setPlaylistName(selectedPlaylist);
+
+        existingPlaylist.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
+
+        System.out.println("Array size: " + existingPlaylist.getSongsFoundArrayList().size());
+
+       // System.out.println(existingPlaylist.getSongsFoundArrayList().get(0).getFileName());
+
+       // System.out.println(existingPlaylist.getSongsFoundArrayList().get(1).getFileName());
+
+        if (existingPlaylist.getSongsFoundArrayList().size()>0){
+
+            System.out.println("Made a new queue for the new playlist");
+
+            // Will save this queue and make it ready for when you start a new playlist
+            temporaryPlayQueue = new ArrayList<>(existingPlaylist.getSongsFoundArrayList());
 
 
+            tempPlaylistName=selectedPlaylist;
 
-        setCurrentSong(mySong);
+            System.out.println("--------------------------------");
+            System.out.println("User selected playlist with the name: " + tempPlaylistName);
 
-        isPlaying=false;
-        handlePlay();
+            System.out.println("The one you are currently listening to: " + listeningPlaylistName);
 
-        setPlayQueue(library.getSongsFoundArrayList());
+            // WILL CHECK IF USER IS IN THE PLAYLIST THAT WE ARE LISTENING TO
+            if (tempPlaylistName.equals(listeningPlaylistName)){
 
 
-        // WILL AUTOMATICALLY PLAY THE SONG WHEN YOU CLICK ON IT
-      //  mp.setAutoPlay(true); TODO CURRENTLY CLASHING WITH THE PLAY CONTROLS
+                showSelectedItems=true;
+
+
+            } else {
+
+                showSelectedItems=false;
+
+            }
+
+
+        }
 
 
 
     }
+
+
+
 
     private boolean windowOpen = false;
 

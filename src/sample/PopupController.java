@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -7,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -24,14 +26,22 @@ public class PopupController {
     @FXML
     private Label errorLabel;
 
+    @FXML
+    private Button createPlayListButton;
+
+
     private boolean windowOpen = false;
 
     private Stage inputWindow;
 
     Parent sourceOfWindow;
 
+    private Scene windowScene;
+
+
     public PopupController() throws IOException{
 
+        inputWindow = new Stage();
 
     }
 
@@ -39,10 +49,11 @@ public class PopupController {
     public void createPlaylistPopup() throws IOException {
 
 
-        inputWindow = new Stage();
+      //  inputWindow = new Stage();
         sourceOfWindow = FXMLLoader.load(getClass().getResource("createPlaylistWindow.fxml"));
         inputWindow.getIcons().add(new Image("sample/images/Music-icon.png"));
-        inputWindow.setScene(new Scene(sourceOfWindow, 300, 200));
+        windowScene = new Scene(sourceOfWindow, 300, 200);
+        inputWindow.setScene(windowScene);
         inputWindow.setAlwaysOnTop(true);
         inputWindow.setResizable(false);
 
@@ -65,7 +76,8 @@ public class PopupController {
                     public void run() {
                         System.out.println("Playlist Creation Window closed by clicking on Close Button(X)");
                         windowOpen=false;
-                        inputWindow.close();
+
+                        // inputWindow.close();
                     }
                 });
             }
@@ -102,7 +114,15 @@ public class PopupController {
 
                 System.out.println("User created new playlist with the name: " + userInput);
 
-            //    inputWindow.hide();
+
+                // TEMPORARY SOLUTION FOR CLOSING THE WINDOW
+                ((Stage)createPlayListButton.getScene().getWindow()).close();
+
+
+
+
+
+
 
             }
 
@@ -113,8 +133,8 @@ public class PopupController {
     @FXML
     private void cancelCreation(){
 
-        inputWindow.close();
-
+        // TEMPORARY SOLUTION FOR CLOSING THE WINDOW
+        ((Stage)createPlayListButton.getScene().getWindow()).close();
 
         windowOpen=false;
 

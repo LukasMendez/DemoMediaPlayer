@@ -2,6 +2,7 @@ package playlistManagement;
 
 import javafx.scene.control.ListView;
 import sample.DB;
+import sample.Song;
 
 import java.util.ArrayList;
 
@@ -15,7 +16,10 @@ import java.util.ArrayList;
 
 public class ExistingPlaylist extends Playlist {
 
+
     private String playlistName;
+
+
 
 
 
@@ -104,6 +108,18 @@ public class ExistingPlaylist extends Playlist {
             System.out.println("Nothing to display. Search machine found nothing.");
 
         }
+
+    }
+
+
+
+
+    public void showAllPlaylists(ListView listView){
+
+
+        DB.selectSQL("select fldName from tblPlaylist");
+
+        displayData(listView);
 
     }
 

@@ -16,10 +16,17 @@ public class Library extends Playlist {
 
    // ArrayList<Song> songsFoundArrayList = new ArrayList<>();
 
-
     public Library(){
 
         super();
+
+    }
+
+
+    public void resetArrayList(){
+
+        songsFoundArrayList.clear();
+
 
     }
 
@@ -44,45 +51,70 @@ public class Library extends Playlist {
 
     }
 
+
+    public void retrieveAllSongs(){
+
+        // WILL COUNT THE AMOUNT OF SONGS IN THE PLAYLIST AND INITIALIZE "amountOfSongs"
+        // WILL CLEAR THE BUFFER FOR NEXT SQL STATEMENT
+        countSongsInLibrary();
+
+
+
+        // WILL GET THE NAME OF THE SONGS IN THE PLAYLIST
+        DB.selectSQL("select fldName from tblSong");
+
+
+        if (amountOfSongs>0){
+
+            do{
+                String data = DB.getData();
+                if (data.equals(DB.NOMOREDATA)){
+
+                    break;
+                } else {
+
+                    // DEBUGGING   System.out.println("Added this song to the Song-library ArrayList: " + data);
+
+                    // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
+                    Song song = new Song(data);
+
+
+
+                    // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
+                    songsFoundArrayList.add(song);
+
+                }
+
+            } while(true);
+
+            // WILL APPLY META DATA TO ALL THE SONGS IN THE ARRAY LIST
+            applyMetaDataToSongs();
+
+        } else {
+
+            System.out.println("There's no songs in the library");
+        }
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
     public void displayAllSongs(TableView tableView, TableColumn titleColumn, TableColumn artistColumn, TableColumn albumColumn){
 
 
-
-            // WILL COUNT THE AMOUNT OF SONGS IN THE PLAYLIST AND INITIALIZE "amountOfSongs"
-            // WILL CLEAR THE BUFFER FOR NEXT SQL STATEMENT
-            countSongsInLibrary();
+        retrieveAllSongs();
 
 
 
-            // WILL GET THE NAME OF THE SONGS IN THE PLAYLIST
-            DB.selectSQL("select fldName from tblSong");
-
-
-            if (amountOfSongs>0){
-
-                do{
-                    String data = DB.getData();
-                    if (data.equals(DB.NOMOREDATA)){
-
-                        break;
-                    } else {
-
-                     // DEBUGGING   System.out.println("Added this song to the Song-library ArrayList: " + data);
-
-                        // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
-                        Song song = new Song(data);
-
-
-
-                        // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
-                        songsFoundArrayList.add(song);
-
-                    }
-
-                } while(true);
-
-                // WILL APPLY META DATA TO ALL THE SONGS IN THE ARRAY LIST
-                applyMetaDataToSongs();
 
                 //   System.out.println("Just testing to see if the metadata is actually here. For song 1 heres what we got: " + songsFoundArrayList.get(0).getSongTitle() + " and " + songsFoundArrayList.get(0).getSongArtist());
 
@@ -94,10 +126,7 @@ public class Library extends Playlist {
 
 
 
-            } else {
 
-                System.out.println("There's no songs in the library");
-            }
 
     }
 
