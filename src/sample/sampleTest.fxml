@@ -95,6 +95,12 @@
                <children>
                   <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                      <children>
+                        <Label text="Label" textFill="#9c1010">
+                           <font>
+                              <Font name="Arial Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Pane prefHeight="67.0" prefWidth="245.0" />
                         <Button fx:id="testButton2" mnemonicParsing="false" onAction="#getPlaylistSelected" text="Test Button (Select playlist)" />
                         <Button fx:id="testButton" mnemonicParsing="false" onAction="#getSongSelected" text="Test Button (Select song)" />
                         <HBox prefHeight="67.0" prefWidth="120.0" />
@@ -133,7 +139,7 @@
           <RowConstraints maxHeight="614.0" minHeight="10.0" prefHeight="530.6666564941406" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="173.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;">
+            <VBox alignment="TOP_CENTER" prefHeight="250.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;">
                <children>
                   <Pane prefHeight="27.0" prefWidth="268.0" />
                   <TextField maxWidth="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="220.0" promptText="Search" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-focus-color: transparent; -fx-background-insets: -1.4, 0, 1, 2;">
@@ -173,7 +179,11 @@
                <children>
                   <VBox prefHeight="200.0" prefWidth="268.0">
                      <children>
-                        <ListView fx:id="allPlaylistsListView" prefHeight="232.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E; -fx-border-color: #2E2E2E;" />
+                        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <ListView fx:id="allPlaylistsListView" prefHeight="232.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E; -fx-border-color: #2E2E2E;" stylesheets="@TableViewColor.css" />
+                           </children>
+                        </VBox>
                      </children>
                   </VBox>
                   <Button fx:id="addMusicButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#addSongToLibrary" prefHeight="51.0" prefWidth="268.0" style="-fx-background-color: #1C1C1C; -fx-border-radius: 0; -fx-background-radius: 0;" text="         Add Music" textFill="WHITE">

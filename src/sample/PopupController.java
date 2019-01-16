@@ -39,9 +39,13 @@ public class PopupController {
     private Scene windowScene;
 
 
+
+
     public PopupController() throws IOException{
 
         inputWindow = new Stage();
+
+
 
     }
 
@@ -113,6 +117,9 @@ public class PopupController {
                 windowOpen=false;
 
                 System.out.println("User created new playlist with the name: " + userInput);
+
+
+                Controller.doneCreatingPlaylist();
 
 
                 // TEMPORARY SOLUTION FOR CLOSING THE WINDOW

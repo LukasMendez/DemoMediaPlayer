@@ -153,15 +153,16 @@ public class Controller implements Initializable {
 
     private boolean isMute = false; // Will check if the music is muted or not
 
-    // TODO CHECK IF NEEDED
+    // WILL SET TO TRUE WHENEVER YOU PRESS A NEW PLAYLIST
     private boolean selectedNewPlaylist = false;
 
-    // TODO CHECK IF NEEDED
+    // WILL DETERMINE IF SONGS WILL BE SELECTED IN THE TABLE VIEW WHEN YOU SKIP A SONG
     private boolean showSelectedItems = true;
 
-    private String currentPlaylistPlaying;
+    private String currentPlaylistPlaying; // TODO SEE IF THIS WILL BE USEFUL
 
 
+    public static Controller myAmazingVariableYeah;
 
 
     /**
@@ -173,12 +174,14 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
 
+        myAmazingVariableYeah = this;
+
+
         // CALLING THE DEFAULT CONSTRUCTOR. MEANING THAT RIGHT NOW NO PLAYLIST IS SELECTED
         allPlaylists = new ExistingPlaylist();
 
         // WILL DISPLAY ALL THE PLAYLISTS ON THE SIDE PANEL
         displayAllPlaylist(allPlaylistsListView);
-
 
 
 
@@ -517,6 +520,12 @@ public class Controller implements Initializable {
                 mySong.setSongArtist("Unknown artist");
 
                 mySong.setSongAlbum("Unknown album");
+
+                // MODIFIED DB TO CHECK IF THERE'S PENDING DATA, IF THIS IS TRUE IT WILL CLEAR THE BUFFER
+                if (DB.hasPendingData()){
+
+                    emptyData();
+                }
 
                 DB.insertSQL("insert into tblSong VALUES('" + file.getName() +  "','" + mySong.getSongTitle() + "', '" + mySong.getSongArtist() + "','" + mySong.getSongAlbum()+"')");
 
@@ -1057,7 +1066,13 @@ public class Controller implements Initializable {
 
         temporaryPlayQueue = library.getSongsFoundArrayList();
 
-        System.out.println("This is what I got from library index 1: " + library.getSongsFoundArrayList().get(0).getFileName() + " - Check if correct");
+        if (library.getSongsFoundArrayList().size()>0){
+
+            System.out.println("This the file name of library index 0: " + library.getSongsFoundArrayList().get(0).getFileName() + " - Check if correct");
+
+        }
+
+
 
         System.out.println("The size of temporaryPlayQueue is: " + temporaryPlayQueue.size());
 
@@ -1070,7 +1085,9 @@ public class Controller implements Initializable {
 
     }
 
-    private void displayAllPlaylist(ListView listView){
+
+
+    public void displayAllPlaylist(ListView listView){
 
         allPlaylists = new ExistingPlaylist();
 
@@ -1079,30 +1096,6 @@ public class Controller implements Initializable {
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private void setListView(String searchKeyword){
-
-
-
-
-    }
 
 
 
@@ -1349,6 +1342,12 @@ public class Controller implements Initializable {
 
     private boolean windowOpen = false;
 
+    public static void doneCreatingPlaylist(){
+
+        myAmazingVariableYeah.displayAllPlaylist(myAmazingVariableYeah.allPlaylistsListView);
+
+    }
+
     /**
      * Will initialize a window, where the user gets to choose a name for his new playlist.
      * @throws IOException
@@ -1360,6 +1359,7 @@ public class Controller implements Initializable {
         PopupController playlistCreationWindow = new PopupController();
 
         playlistCreationWindow.createPlaylistPopup();
+
 
 
 

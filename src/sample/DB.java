@@ -27,6 +27,11 @@ public class DB {
      * STATES
      */
     private static boolean moreData=false;  // from Resultset
+
+    public static boolean hasPendingData() {
+        return pendingData;
+    }
+
     private static boolean pendingData=false; // from select statement
     private static boolean terminated = false;
 
