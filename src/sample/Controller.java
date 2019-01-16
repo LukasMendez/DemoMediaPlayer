@@ -9,11 +9,14 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.media.*;
 
 import javafx.fxml.FXML;
@@ -170,89 +173,51 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
 
+        // CALLING THE DEFAULT CONSTRUCTOR. MEANING THAT RIGHT NOW NO PLAYLIST IS SELECTED
         allPlaylists = new ExistingPlaylist();
-
-
-
-
-        /////////////////////////////////////////////////////
-
-        // TESTING AREA
-
-
-     /*   Song song1 = new Song("a lot.mp3");
-
-        Song song2 = new Song("Work Out.mp3");
-
-        Song song3 = new Song("Jesus Walks.mp3");
-
-        Playlist myPlaylist = new Playlist("Shitty music");
-
-        myPlaylist.addSong(song1);
-
-        myPlaylist.addSong(song2); */
-
-
 
         // WILL DISPLAY ALL THE PLAYLISTS ON THE SIDE PANEL
         displayAllPlaylist(allPlaylistsListView);
 
 
-    //    ExistingPlaylist myPlaylist = new ExistingPlaylist();
-
-      //  myPlaylist.setPlaylistName("Best Mumble Rappers");
-
-
-        // myPlaylist.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
-
-
-
-        //////////////////////////////////////////////////////
 
 
         Library defaultLibrary = new Library();
 
         defaultLibrary.retrieveAllSongs();
 
-        System.out.println("Song number 1 is: " + defaultLibrary.getSongsFoundArrayList().get(0).getFileName());
+        if (defaultLibrary.getSongsFoundArrayList().size()>0){
 
-        currentPlayQueue = defaultLibrary.getSongsFoundArrayList();
+            System.out.println("Song number 1 is: " + defaultLibrary.getSongsFoundArrayList().get(0).getFileName());
 
-        defaultTableView.getSelectionModel().select(0);
+            currentPlayQueue = defaultLibrary.getSongsFoundArrayList();
 
-        mySong = new Song(currentPlayQueue.get(0).getFileName());
+            //  defaultTableView.getSelectionModel().select(0);
 
-        me = mySong.getMedia();
+            mySong = new Song(currentPlayQueue.get(0).getFileName());
 
-        // THE ONE WE USE FOR TESTING
+            me = mySong.getMedia();
 
-        setCurrentSong(mySong);
+            // THE ONE WE USE FOR TESTING
 
-        mp = new MediaPlayer(me);
-        //
-        mediaV.setMediaPlayer(mp);
-        // mp.setAutoPlay(true);
-        // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
-        mp.setAutoPlay(false);
+            setCurrentSong(mySong);
+
+            mp = new MediaPlayer(me);
+            //
+            mediaV.setMediaPlayer(mp);
+            // mp.setAutoPlay(true);
+            // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
+            mp.setAutoPlay(false);
+
+        }
 
         showLibrarySongs();
 
 
-        System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum());
+
+      //  System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum());
 
 
-        ExistingPlaylist myoldOne = new ExistingPlaylist();
-
-        myoldOne.setPlaylistName("BootyGains");
-
-
-      //  Song prutskid = new Song("7 Days.mp3");
-
-       // Song prutskid2 = new Song("Gold Digger.mp3");
-
-       // myoldOne.addSong(prutskid);
-
-       // myoldOne.addSong(prutskid2);
 
     }
 
@@ -713,80 +678,86 @@ public class Controller implements Initializable {
 
         mp.currentTimeProperty().addListener((observable, oldTime, newTime) -> {
 
-            // System.out.println(mp.getTotalDuration().toMinutes());
+            if(mp.getCurrentTime().toMillis()>=mp.getTotalDuration().toMillis()-50){
+                //System.out.println("CurrentTime: "+mp.getCurrentTime()+" Total Duration: "+mp.getTotalDuration());
+                playNextSong();
 
-            int t = (int) (100 * mp.getTotalDuration().toMinutes());
+            }else{
 
-            String setTotalDuration = "0:00";
-            int hourTotalDuration = t / 3600;
-            int minTotalDuration = t / 100;
-            int secTotalDuration = 60 * (t % 100);
+                // System.out.println(mp.getTotalDuration().toMinutes());
 
-            if (hourTotalDuration == 0) {
-                if (secTotalDuration < 90) {
-                    // System.out.printf("%.2s:00 \n", minTotalDuration);
-                    setTotalDuration = String.format("%.2s:00", minTotalDuration);
-                } else if (secTotalDuration < 1000) {
-                    // System.out.printf("%.2s:0%.1s \n", minTotalDuration, minTotalDuration);
-                    setTotalDuration = String.format("%.2s:0%.1s", minTotalDuration, secTotalDuration);
+                int t = (int) (100 * mp.getTotalDuration().toMinutes());
+
+                String setTotalDuration = "0:00";
+                int hourTotalDuration = t / 3600;
+                int minTotalDuration = t / 100;
+                int secTotalDuration = 60 * (t % 100);
+
+                if (hourTotalDuration == 0) {
+                    if (secTotalDuration < 90) {
+                        // System.out.printf("%.2s:00 \n", minTotalDuration);
+                        setTotalDuration = String.format("%.2s:00", minTotalDuration);
+                    } else if (secTotalDuration < 1000) {
+                        // System.out.printf("%.2s:0%.1s \n", minTotalDuration, minTotalDuration);
+                        setTotalDuration = String.format("%.2s:0%.1s", minTotalDuration, secTotalDuration);
+                    } else {
+                        // System.out.printf("%.2s:%.2s \n", minTotalDuration, secTotalDuration);
+                        setTotalDuration = String.format("%.2s:%.2s", minTotalDuration, secTotalDuration);
+                    }
                 } else {
-                    // System.out.printf("%.2s:%.2s \n", minTotalDuration, secTotalDuration);
-                    setTotalDuration = String.format("%.2s:%.2s", minTotalDuration, secTotalDuration);
+                    if (secTotalDuration < 90) {
+                        // System.out.printf("%.2:%.2s:00 \n", hourTotalDuration, minTotalDuration);
+                        setTotalDuration = String.format("%.2s%.2s:00", hourTotalDuration, minTotalDuration);
+                    } else if (secTotalDuration < 1000) {
+                        // System.out.printf("%.2:%.2s:0%.1s \n", hourTotalDuration, minTotalDuration, secTotalDuration);
+                        setTotalDuration = String.format("%.2s%.2s:0%.1s", hourTotalDuration, minTotalDuration, secTotalDuration);
+                    } else {
+                        // System.out.printf("%.2s:%.2s:%.2s \n", hourTotalDuration, minTotalDuration, secTotalDuration);
+                        setTotalDuration = String.format("%.2:%.2s:%.2s", hourTotalDuration, minTotalDuration, secTotalDuration);
+                    }
                 }
-            } else {
-                if (secTotalDuration < 90) {
-                    // System.out.printf("%.2:%.2s:00 \n", hourTotalDuration, minTotalDuration);
-                    setTotalDuration = String.format("%.2s%.2s:00", hourTotalDuration, minTotalDuration);
-                } else if (secTotalDuration < 1000) {
-                    // System.out.printf("%.2:%.2s:0%.1s \n", hourTotalDuration, minTotalDuration, secTotalDuration);
-                    setTotalDuration = String.format("%.2s%.2s:0%.1s", hourTotalDuration, minTotalDuration, secTotalDuration);
+
+                durationSlider.setValue(newTime.toMillis() / mp.getTotalDuration().toMillis() * 100);
+
+                String setCurrentTime = "0:00";
+                int timeCurrentTime = (int) (100 * mp.getCurrentTime().toMinutes());
+
+                int hourCurrentTime = timeCurrentTime / 3600;
+                int minCurrentTime = timeCurrentTime / 100;
+                int secCurrentTime = 60 * (timeCurrentTime % 100);
+
+
+                if (hourCurrentTime == 0) {
+                    if (secCurrentTime < 90) {
+                        // System.out.printf("%.2s:00 \n", minCurrentTime);
+                        setCurrentTime = String.format("%.2s:00", minCurrentTime);
+                    } else if (secCurrentTime < 1000) {
+                        // System.out.printf("%.2s:0%.1s \n", minCurrentTime, secCurrentTime);
+                        setCurrentTime = String.format("%.2s:0%.1s", minCurrentTime, secCurrentTime);
+                    } else {
+                        // System.out.printf("%.2s:%.2s \n", minCurrentTime, secCurrentTime);
+                        setCurrentTime = String.format("%.2s:%.2s", minCurrentTime, secCurrentTime);
+                    }
                 } else {
-                    // System.out.printf("%.2s:%.2s:%.2s \n", hourTotalDuration, minTotalDuration, secTotalDuration);
-                    setTotalDuration = String.format("%.2:%.2s:%.2s", hourTotalDuration, minTotalDuration, secTotalDuration);
+                    if (secCurrentTime < 90) {
+                        // System.out.printf("%.2:%.2s:00 \n", hourCurrentTime, minCurrentTime);
+                        setCurrentTime = String.format("%.2s%.2s:00", hourCurrentTime, minCurrentTime);
+                    } else if (secCurrentTime < 1000) {
+                        // System.out.printf("%.2:%.2s:0%.1s \n", hourCurrentTime, minCurrentTime, secCurrentTime);
+                        setCurrentTime = String.format("%.2s%.2s:0%.1s", hourCurrentTime, minCurrentTime, secCurrentTime);
+                    } else {
+                        // System.out.printf("%.2s:%.2s:%.2s \n", hourCurrentTime, minCurrentTime, secCurrentTime);
+                        setCurrentTime = String.format("%.2:%.2s:%.2s", hourCurrentTime, minCurrentTime, secCurrentTime);
+                    }
+
                 }
+                displayTotalDuration.setText(setTotalDuration);
+                displayCurrentTime.setText(setCurrentTime);
+               // System.out.println("CurrentTime: "+mp.getCurrentTime()+" Total Duration: "+mp.getTotalDuration());
+
             }
-
-            durationSlider.setValue(newTime.toMillis() / mp.getTotalDuration().toMillis() * 100);
-
-
-
-            String setCurrentTime = "0:00";
-            int timeCurrentTime = (int) (100 * mp.getCurrentTime().toMinutes());
-
-            int hourCurrentTime = timeCurrentTime / 3600;
-            int minCurrentTime = timeCurrentTime / 100;
-            int secCurrentTime = 60 * (timeCurrentTime % 100);
-
-
-            if (hourCurrentTime == 0) {
-                if (secCurrentTime < 90) {
-                    // System.out.printf("%.2s:00 \n", minCurrentTime);
-                    setCurrentTime = String.format("%.2s:00", minCurrentTime);
-                } else if (secCurrentTime < 1000) {
-                    // System.out.printf("%.2s:0%.1s \n", minCurrentTime, secCurrentTime);
-                    setCurrentTime = String.format("%.2s:0%.1s", minCurrentTime, secCurrentTime);
-                } else {
-                    // System.out.printf("%.2s:%.2s \n", minCurrentTime, secCurrentTime);
-                    setCurrentTime = String.format("%.2s:%.2s", minCurrentTime, secCurrentTime);
-                }
-            } else {
-                if (secCurrentTime < 90) {
-                    // System.out.printf("%.2:%.2s:00 \n", hourCurrentTime, minCurrentTime);
-                    setCurrentTime = String.format("%.2s%.2s:00", hourCurrentTime, minCurrentTime);
-                } else if (secCurrentTime < 1000) {
-                    // System.out.printf("%.2:%.2s:0%.1s \n", hourCurrentTime, minCurrentTime, secCurrentTime);
-                    setCurrentTime = String.format("%.2s%.2s:0%.1s", hourCurrentTime, minCurrentTime, secCurrentTime);
-                } else {
-                    // System.out.printf("%.2s:%.2s:%.2s \n", hourCurrentTime, minCurrentTime, secCurrentTime);
-                    setCurrentTime = String.format("%.2:%.2s:%.2s", hourCurrentTime, minCurrentTime, secCurrentTime);
-                }
-
-            }
-            displayTotalDuration.setText(setTotalDuration);
-            displayCurrentTime.setText(setCurrentTime);
 
         });
-
 
 
 
@@ -1391,6 +1362,29 @@ public class Controller implements Initializable {
         playlistCreationWindow.createPlaylistPopup();
 
 
+
+    }
+
+    @FXML
+    private void mouseClick(){
+
+        defaultTableView.setOnMouseClicked(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+                    if(mouseEvent.getClickCount() == 2){
+                        getSongSelected();
+
+                        handlePlay();
+
+
+
+
+                    }
+
+                }
+            }
+        });
 
     }
 

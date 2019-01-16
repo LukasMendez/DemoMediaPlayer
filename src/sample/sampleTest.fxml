@@ -103,7 +103,7 @@
                   <HBox alignment="TOP_RIGHT" prefHeight="507.0" prefWidth="812.0" VBox.vgrow="ALWAYS">
                      <children>
                         <ListView fx:id="defaultListView" prefHeight="474.0" prefWidth="782.0" style="-fx-background-color: #E6E6E6;" HBox.hgrow="ALWAYS" />
-                        <TableView fx:id="defaultTableView" focusTraversable="false" prefHeight="478.0" prefWidth="1156.0" style="-fx-focus-color: transparent;" HBox.hgrow="ALWAYS">
+                        <TableView fx:id="defaultTableView" focusTraversable="false" onMouseClicked="#mouseClick" prefHeight="478.0" prefWidth="1156.0" style="-fx-focus-color: transparent;" HBox.hgrow="ALWAYS">
                           <columns>
                             <TableColumn fx:id="songTitleColumn" prefWidth="128.5" sortable="false" text="Song title" />
                             <TableColumn fx:id="songArtistColumn" minWidth="0.0" prefWidth="184.0" sortable="false" text="Artist" />
