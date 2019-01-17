@@ -40,6 +40,7 @@ public class Playlist {
 
     }
 
+    // CONSTRUCTOR
     public Playlist(String nameOfPlaylist){
 
         this.nameOfPlaylist = nameOfPlaylist;
@@ -56,9 +57,74 @@ public class Playlist {
      * Only used by other classes to set the name of the existing playlist.
      * @param nameOfPlaylist
      */
-    protected void setNameOfPlaylist(String nameOfPlaylist) {
+    public void setNameOfPlaylist(String nameOfPlaylist) {
         this.nameOfPlaylist = nameOfPlaylist;
     }
+
+
+    public void retrieveNonIncludedSongs(){
+
+        if (nameOfPlaylist!=null){
+
+            countSongsInPlaylist();
+
+            DB.selectSQL("select fldName from tblSong except select fldSongName from tblPlaylistSongs where fldPlaylistName='"+nameOfPlaylist+"'");
+
+            loadDataOfLibrary();
+
+
+
+
+        } else {
+
+            System.out.println("Cannot retrieve songs, as no playlist were selected");
+
+        }
+
+
+
+    }
+
+    /**
+     * This method will load the selected data from SQL and apply the meta data
+     */
+
+
+    protected void loadDataOfLibrary(){
+
+
+        do{
+            String data = DB.getData();
+            if (data.equals(DB.NOMOREDATA)){
+
+                break;
+            } else {
+
+                // DEBUGGING
+              //  System.out.println("Added this song to the Song-library ArrayList: " + data);
+
+
+                // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
+                Song song = new Song(data);
+
+
+
+                // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
+                songsFoundArrayList.add(song);
+
+
+
+
+            }
+
+        } while(true);
+
+        // WILL APPLY META DATA TO ALL THE SONGS IN THE ARRAY LIST
+        applyMetaDataToSongs();
+
+
+    }
+
 
 
     /**
@@ -156,8 +222,7 @@ public class Playlist {
              //   System.out.println("Just testing to see if the metadata is actually here. For song 1 heres what we got: " + songsFoundArrayList.get(0).getSongTitle() + " and " + songsFoundArrayList.get(0).getSongArtist());
 
 
-                // WILL CONFIGURE THE ACTUAL DISPLAY DATA
-                setSongTableView(tableView,titleColumn,artistColumn,albumColumn);
+
 
                 // TODO MAKE IT SHOW UP ON EITHER THE LIST VIEW OR TABLE VIEW
 
@@ -166,8 +231,17 @@ public class Playlist {
 
             } else {
 
-                System.out.println("There's no playlist with that name. Please check for typos!");
+                System.out.println("There's nothing to display. Please check for typos!");
+                songsFoundArrayList.clear();
+
+
             }
+
+
+            // WILL CONFIGURE THE ACTUAL DISPLAY DATA
+            setSongTableView(tableView,titleColumn,artistColumn,albumColumn);
+
+
         } else {
 
             System.out.println("Not able to display anything as no playlist were selected");
@@ -220,10 +294,6 @@ public class Playlist {
         albumColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("songAlbum"));
 
 
-
-
-
-
         // WILL CALL A METHOD THAT GETS THE SONGS AND ITS PROPERTIES
         tableView.setItems(getSongs());
 
@@ -244,7 +314,10 @@ public class Playlist {
 
         ObservableList<Song> songs = FXCollections.observableArrayList();
 
-        for (int i = 0; i < amountOfSongs; i++) {
+        System.out.println("getSongs() says that songFoundArrayList is: " + songsFoundArrayList.size());
+
+
+        for (int i = 0; i < songsFoundArrayList.size(); i++) {
 
             // WILL RETRIEVE EACH SONG FROM THE ARRAY LIST AND SAVE IT INTO THE OBSERVABLE LIST
             songs.add(songsFoundArrayList.get(i));

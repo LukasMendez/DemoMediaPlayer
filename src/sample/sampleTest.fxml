@@ -95,15 +95,34 @@
                <children>
                   <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label text="Label" textFill="#9c1010">
-                           <font>
-                              <Font name="Arial Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <Pane prefHeight="67.0" prefWidth="245.0" />
-                        <Button fx:id="testButton2" mnemonicParsing="false" onAction="#getPlaylistSelected" text="Test Button (Select playlist)" />
-                        <Button fx:id="testButton" mnemonicParsing="false" onAction="#getSongSelected" text="Test Button (Select song)" />
-                        <HBox prefHeight="67.0" prefWidth="120.0" />
+                        <HBox alignment="CENTER_LEFT" prefHeight="67.0" prefWidth="346.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Pane maxWidth="-Infinity" prefHeight="67.0" prefWidth="38.0" HBox.hgrow="NEVER" />
+                              <Label fx:id="headlineLabel" text="Name of List" textFill="#b9b9b9">
+                                 <font>
+                                    <Font name="Arial Bold" size="24.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <Button fx:id="AddSongButton" mnemonicParsing="false" onAction="#addSongsToSelectedPlaylist" prefHeight="22.0" prefWidth="181.0" style="-fx-background-color: #E6E6E6;" text="Add songs to this playlist">
+                           <graphic>
+                              <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@buttons/plus.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic></Button>
+                        <Pane prefHeight="67.0" prefWidth="10.0" />
+                        <Button fx:id="DeleteSongButton" mnemonicParsing="false" onAction="#deleteSelectedFromPlaylist" style="-fx-background-color: #E6E6E6;" text="Delete Selected">
+                           <graphic>
+                              <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@buttons/50003304_367926917119046_3524156533363441664_n.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic></Button>
+                        <HBox prefHeight="67.0" prefWidth="81.0" />
                      </children>
                   </HBox>
                   <HBox alignment="TOP_RIGHT" prefHeight="507.0" prefWidth="812.0" VBox.vgrow="ALWAYS">
@@ -130,16 +149,16 @@
       </BorderPane>
    </center>
    <left>
-      <GridPane prefHeight="720.0" prefWidth="268.0" BorderPane.alignment="CENTER">
+      <GridPane prefHeight="720.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="356.5" minHeight="10.0" prefHeight="189.33334350585938" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="614.0" minHeight="10.0" prefHeight="530.6666564941406" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="392.0" valignment="BOTTOM" vgrow="ALWAYS" />
+          <RowConstraints minHeight="10.0" prefHeight="328.0" valignment="BOTTOM" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="250.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;">
+            <VBox alignment="TOP_CENTER" prefHeight="250.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" GridPane.valignment="BOTTOM" GridPane.vgrow="ALWAYS">
                <children>
                   <Pane prefHeight="27.0" prefWidth="268.0" />
                   <TextField maxWidth="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="220.0" promptText="Search" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-focus-color: transparent; -fx-background-insets: -1.4, 0, 1, 2;">
@@ -173,19 +192,15 @@
                         </ImageView>
                      </graphic>
                   </Button>
-               </children>
-            </VBox>
-            <VBox alignment="BOTTOM_LEFT" prefHeight="546.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" GridPane.rowIndex="1">
-               <children>
-                  <VBox prefHeight="200.0" prefWidth="268.0">
+                  <VBox alignment="BOTTOM_LEFT" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                      <children>
-                        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <ListView fx:id="allPlaylistsListView" prefHeight="232.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E; -fx-border-color: #2E2E2E;" stylesheets="@TableViewColor.css" />
-                           </children>
-                        </VBox>
+                        <ListView fx:id="allPlaylistsListView" onMouseClicked="#mouseClickPlaylist" prefHeight="232.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E; -fx-border-color: #2E2E2E;" stylesheets="@TableViewColor.css" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
+               </children>
+            </VBox>
+            <VBox alignment="BOTTOM_LEFT" prefHeight="363.0" prefWidth="268.0" style="-fx-background-color: #2E2E2E;" GridPane.rowIndex="1">
+               <children>
                   <Button fx:id="addMusicButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#addSongToLibrary" prefHeight="51.0" prefWidth="268.0" style="-fx-background-color: #1C1C1C; -fx-border-radius: 0; -fx-background-radius: 0;" text="         Add Music" textFill="WHITE">
                      <font>
                         <Font name="Arial" size="18.0" />

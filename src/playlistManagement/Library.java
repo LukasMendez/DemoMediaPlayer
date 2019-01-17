@@ -3,6 +3,7 @@ package playlistManagement;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -66,29 +67,8 @@ public class Library extends Playlist {
 
         if (amountOfSongs>0){
 
-            do{
-                String data = DB.getData();
-                if (data.equals(DB.NOMOREDATA)){
 
-                    break;
-                } else {
-
-                    // DEBUGGING   System.out.println("Added this song to the Song-library ArrayList: " + data);
-
-                    // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
-                    Song song = new Song(data);
-
-
-
-                    // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
-                    songsFoundArrayList.add(song);
-
-                }
-
-            } while(true);
-
-            // WILL APPLY META DATA TO ALL THE SONGS IN THE ARRAY LIST
-            applyMetaDataToSongs();
+            loadDataOfLibrary();
 
         } else {
 
@@ -99,8 +79,14 @@ public class Library extends Playlist {
 
 
 
+    }
+
+    public void displayLeftovers(TableView tableView, TableColumn titleColumn, TableColumn artistColumn, TableColumn albumColumn){
 
 
+      //  retrieveNonIncludedSongs();
+
+        setSongTableView(tableView,titleColumn,artistColumn,albumColumn);
 
 
     }

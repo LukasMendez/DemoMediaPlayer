@@ -30,11 +30,12 @@ public class PopupController {
     private Button createPlayListButton;
 
 
-    private boolean windowOpen = false;
+    // MADE STATIC AS IT HAS TO BE APPLICABLE FOR ALL OBJECTS
+    private static boolean windowOpen = false;
 
     private Stage inputWindow;
 
-    Parent sourceOfWindow;
+    private Parent sourceOfWindow;
 
     private Scene windowScene;
 
@@ -67,6 +68,10 @@ public class PopupController {
 
             windowOpen = true;
 
+        } else {
+
+            System.out.println("Please close the current window before you open a new one!");
+
         }
 
         // WILL CHECK IF THE USER CLOSES THE WINDOW AND MAKE YOU ABLE TO REOPEN IT AFTERWARDS
@@ -81,7 +86,6 @@ public class PopupController {
                         System.out.println("Playlist Creation Window closed by clicking on Close Button(X)");
                         windowOpen=false;
 
-                        // inputWindow.close();
                     }
                 });
             }
@@ -118,7 +122,7 @@ public class PopupController {
 
                 System.out.println("User created new playlist with the name: " + userInput);
 
-
+                // WILL RE-DISPLAY / REFRESH THE LIST OF PLAYLISTS
                 Controller.doneCreatingPlaylist();
 
 

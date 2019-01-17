@@ -10,6 +10,9 @@ import javafx.beans.Observable;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,6 +29,7 @@ import javafx.fxml.Initializable;
 import javafx.event.ActionEvent;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import playlistManagement.ExistingPlaylist;
@@ -44,8 +48,9 @@ public class Controller implements Initializable {
     @FXML
     private MediaView mediaV;
 
+
     @FXML
-    private Button addMusicButton;
+    private Label headlineLabel;
 
 
 
@@ -147,6 +152,24 @@ public class Controller implements Initializable {
 
     private Library library;
 
+    // PLAYLIST NAMES - DEFAULT: LIBRARY - AS THIS IS WHERE YOU START
+
+
+
+    // WILL BE GIVEN TO AddSongController CLASS
+
+    public static String getTempPlaylistName() {
+        return tempPlaylistName;
+    }
+
+    // This one is the one that you just clicked on. (The one that you are looking at)
+    private static String tempPlaylistName = "Library";
+
+    // This one is the one that your music comes from
+    private String listeningPlaylistName = "Library";
+
+    // BOOLEANS
+
     private boolean isOnShuffle = false;
 
     private boolean isPlaying = false; // Will check if the music player is playing
@@ -162,7 +185,7 @@ public class Controller implements Initializable {
     private String currentPlaylistPlaying; // TODO SEE IF THIS WILL BE USEFUL
 
 
-    public static Controller myAmazingVariableYeah;
+    public static Controller ControllerClass;
 
 
     /**
@@ -174,7 +197,8 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
 
-        myAmazingVariableYeah = this;
+        // MADE TO MAKE ACCESS BETWEEN CONTROLLERS POSSIBLE - Will make other classes able to borrow methods from this one
+        ControllerClass = this;
 
 
         // CALLING THE DEFAULT CONSTRUCTOR. MEANING THAT RIGHT NOW NO PLAYLIST IS SELECTED
@@ -223,6 +247,7 @@ public class Controller implements Initializable {
 
 
     }
+
 
 
     //////////////////////////////////////////////////////////
@@ -1022,6 +1047,8 @@ public class Controller implements Initializable {
     @FXML
     private void showLibrarySongs(){
 
+        headlineLabel.setText("Library");
+
         // WILL CHECK IF USER IS IN THE PLAYLIST THAT WE ARE LISTENING TO
 
         tempPlaylistName="Library";
@@ -1075,12 +1102,6 @@ public class Controller implements Initializable {
 
 
         System.out.println("The size of temporaryPlayQueue is: " + temporaryPlayQueue.size());
-
-        //
-
-
-        // WILL GIVE US THE PLAY QUEUE
-    //    setPlayQueue(library.getSongsFoundArrayList());
 
 
     }
@@ -1189,9 +1210,7 @@ public class Controller implements Initializable {
 
     // VARIABLES THAT WILL CHECK IF YOU SELECTED A NEW PLAYLIST OR NOT
 
-    private String tempPlaylistName = "Library";
 
-    private String listeningPlaylistName = "Library";
 
 
     private void checkIfCurrentQueueEqualsSelected(){
@@ -1284,9 +1303,15 @@ public class Controller implements Initializable {
     private void getPlaylistSelected(){
 
 
+
         selectedNewPlaylist = true;
 
         String selectedPlaylist = allPlaylistsListView.getSelectionModel().getSelectedItem();
+
+        tempPlaylistName=selectedPlaylist; // TODO MOVED THIS OUT OF THE IF STATEMENT BODY DOWN BELOW. NOW YOU KNOW IF IT GIVES YOU TROUBLE
+
+        headlineLabel.setText(selectedPlaylist);
+
 
         System.out.println("Name of selected playlist: " + selectedPlaylist);
 
@@ -1309,8 +1334,6 @@ public class Controller implements Initializable {
             // Will save this queue and make it ready for when you start a new playlist
             temporaryPlayQueue = new ArrayList<>(existingPlaylist.getSongsFoundArrayList());
 
-
-            tempPlaylistName=selectedPlaylist;
 
             System.out.println("--------------------------------");
             System.out.println("User selected playlist with the name: " + tempPlaylistName);
@@ -1338,13 +1361,55 @@ public class Controller implements Initializable {
     }
 
 
+    @FXML
+    private void deleteSelectedFromPlaylist(){
 
 
-    private boolean windowOpen = false;
+        if (!tempPlaylistName.equals("Library")){
 
+
+            Song song = defaultTableView.getSelectionModel().getSelectedItem();
+
+            DB.deleteSQL("delete from tblPlaylistSongs where fldSongName='"+song.getFileName()+"' and fldPlaylistName='"+tempPlaylistName+"'");
+
+            System.out.println("Deleted " + song.getFileName() + " from playlist name " + tempPlaylistName);
+
+            getPlaylistSelected();
+
+            getSongSelected(); // WILL PROBABLY RESET THE MUSIC
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+    }
+
+
+
+    //////////////////////////////////////////////////
+    // METHODS THAT INTERACT WITH OTHER CONTROLLERS //
+    //                AND FXML FILES                //
+    /////////////////////////////////////////////////
+
+
+    /**
+     * Static method that utilizes the ControllerClass solution, where you basically can execute methods
+     * from this class in other classes.
+     *
+     */
     public static void doneCreatingPlaylist(){
 
-        myAmazingVariableYeah.displayAllPlaylist(myAmazingVariableYeah.allPlaylistsListView);
+        ControllerClass.displayAllPlaylist(ControllerClass.allPlaylistsListView);
 
     }
 
@@ -1361,9 +1426,82 @@ public class Controller implements Initializable {
         playlistCreationWindow.createPlaylistPopup();
 
 
+    }
+
+    private Stage stage = new Stage();
+
+    /**
+     * This method will open up a new Stage and let the user choose the songs he wants to add for the selected playlist.
+     * As long as it's not Library, which obviously isn't a playlist.
+     * @throws IOException
+     */
+
+    @FXML
+    private void addSongsToSelectedPlaylist() throws IOException {
+
+
+        System.out.println("addSongsToSelectedPlaylist says that tempPlaylistName is: " + tempPlaylistName);
+
+
+        if (!tempPlaylistName.equals("Library")){
+
+
+           if (!stage.isShowing()){
+
+               try {
+                   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("addSongToPlaylistPopUp.fxml"));
+                   Parent root1 = (Parent) fxmlLoader.load();
+                   stage = new Stage();
+
+
+
+                   stage.initModality(Modality.WINDOW_MODAL);
+                   stage.getIcons().add(new Image("sample/images/Music-icon.png"));
+                   stage.setResizable(false);
+                   stage.setAlwaysOnTop(true);
+
+                   stage.setTitle("Add songs to your playlist");
+                   stage.setScene(new Scene(root1));
+
+                   // WILL CHECK WHEN THE WINDOW IS CLOSED AND REFRESH THE WINDOW WITH THE NEWLY ADDED SONGS
+                   // EVENT HANDLER:
+                   stage.setOnHiding( event -> {System.out.println("Closing Stage"); getPlaylistSelected(); } );
+
+
+
+
+                   stage.showAndWait();
+
+
+
+
+
+               } catch (Exception e){
+
+                   System.out.println("Couldn't open window");
+
+               }
+
+
+           }
+
+
+
+
+        } else {
+
+            System.out.println("ERROR: You are trying to add songs to an illegal playlist");
+
+
+        }
+
+
 
 
     }
+
+
+    // MOUSE CLICK EVENTS
 
     @FXML
     private void mouseClick(){
@@ -1382,6 +1520,23 @@ public class Controller implements Initializable {
 
                     }
 
+                }
+            }
+        });
+
+    }
+
+    @FXML
+    private void mouseClickPlaylist() {
+
+        allPlaylistsListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        getPlaylistSelected();
+
+                    }
                 }
             }
         });
