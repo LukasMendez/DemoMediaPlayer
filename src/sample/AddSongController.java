@@ -21,6 +21,16 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ *
+ * This class represents the popup window, where the user gets to select the songs he want to add to the
+ * chosen playlist.
+ *
+ * @author Lukas, Pierre, Alexander and Allan
+ *
+ */
+
+
 public class AddSongController implements Initializable {
 
 
@@ -28,10 +38,6 @@ public class AddSongController implements Initializable {
 
     @FXML
     private Button doneButton;
-
-    @FXML
-    private Button addSongButton;
-
 
 
     // DISPLAYING PLAYLISTS AND SONGS
@@ -56,31 +62,12 @@ public class AddSongController implements Initializable {
 
 
     // MADE STATIC AS IT HAS TO BE APPLICABLE FOR ALL OBJECTS
-    private static boolean windowOpen = false;
 
     // You can only select one playlist at a time
     private static String currentPlaylistSelected;
 
 
-
-
-
-    private Parent sourceOfWindow;
-
-    private Stage addingWindow;
-
-    private Scene windowScene;
-
     private Library defaultLibrary = new Library();
-
-
-
-    public AddSongController(){
-
-
-
-
-    }
 
 
 
@@ -97,6 +84,12 @@ public class AddSongController implements Initializable {
     }
 
 
+    /**
+     * Will show a list in the popup window of all the songs, that aren't in the playlist already.
+     * This is a great way to avoid duplicates and confusion. The method calls several methods in the process from classes
+     * such as Library, Playlist and Song.
+     *
+     */
 
     @FXML
     private void showListOfAvailableSongs(){
@@ -106,24 +99,27 @@ public class AddSongController implements Initializable {
 
         defaultLibrary.setNameOfPlaylist(currentPlaylistSelected);
 
+        // THIS METHOD RETRIEVES THE SONGS THAT AREN'T IN THE PLAYLIST
         defaultLibrary.retrieveNonIncludedSongs();
 
+        // IF THERE ARE AT LEAST ONE IT WILL TELL YOU THE NAME FOR DEBUGGING PURPOSES AND DISPLAY THE SONGS
         if (defaultLibrary.getSongsFoundArrayList().size()>0) {
 
             System.out.println("Song number 1 is: " + defaultLibrary.getSongsFoundArrayList().get(0).getFileName());
 
 
-            // TODO FIX SO THAT IT WILL SHOW UP IN THE TABLE VIEW
-
             defaultLibrary.displayLeftovers(popupTableView,popupSongTitleColumn,popupSongArtistColumn,popupSongAlbumColumn);
-
 
         }
 
-
-
     }
 
+    /**
+     * Will add the song that you selected in the TableView to the playlist.
+     * After that, it will refresh the list. But in the users eyes, it will just look like the song he selected
+     * disappeared naturally.
+     *
+     */
     @FXML
     private void addCurrentSong(){
 
@@ -141,36 +137,24 @@ public class AddSongController implements Initializable {
 
         defaultLibrary.resetArrayList();
 
+        // THIS IS WHERE THE LIST IS REFRESHED
         showListOfAvailableSongs();
 
 
     }
 
 
-
+    /**
+     * This method closes the window, and is attached to the "doneButton"
+     */
 
     @FXML
     private void finishedAddingSongs(){
 
-        windowOpen=false;
-
         // TEMPORARY SOLUTION FOR CLOSING THE WINDOW
         ((Stage)doneButton.getScene().getWindow()).close();
 
-
-
     }
-
-
-    public static void main(String[] args) {
-
-//        showListOfAvailableSongs();
-
-
-
-    }
-
-
 
 
 }

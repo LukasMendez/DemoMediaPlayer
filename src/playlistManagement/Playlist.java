@@ -13,8 +13,10 @@ import java.util.ArrayList;
 
 /**
  *
- * This class is only for creating new playlists and modifying them afterwards.
- * If you want to access an existing playlist, please use "Existing playlist"
+ * This class is mainly for creating new playlists and modifying them afterwards.
+ * If you want to access an existing playlist, please use "Existing playlist".
+ *
+ * @author Lukas, Pierre, Alexander and Allan
  *
  */
 
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 public class Playlist {
 
 
+    // THESE VARIABLES ARE PROTECTED BECAUSE OTHER CLASSES IN THE PACKAGE ARE INTERESTED IN THEM
 
     protected String nameOfPlaylist;
 
@@ -29,16 +32,22 @@ public class Playlist {
 
     protected ArrayList<Song> songsFoundArrayList = new ArrayList<>();
 
-    // Will give you the possibility to get the complete TableView
-    private TableView <Song> songTableView;
 
+    /**
+     * Default constructor
+     */
 
     // DEFAULT CONSTRUCTOR
     public Playlist(){
 
-
-
     }
+
+
+    /**
+     * Constructor where you pass the name of the playlist, that you wanna create. The data will then be inserted
+     * into the database.
+     * @param nameOfPlaylist the name of the playlist
+     */
 
     // CONSTRUCTOR
     public Playlist(String nameOfPlaylist){
@@ -51,16 +60,23 @@ public class Playlist {
 
     }
 
-    // TODO MAY WANNA DELETE THIS
 
     /**
-     * Only used by other classes to set the name of the existing playlist.
-     * @param nameOfPlaylist
+     * Only used by other classes to set the name of the existing playlist. Can sometimes be necessary if the subclass
+     * is working with methods from the superclass that uses this specific variable.
+     * @param nameOfPlaylist name of the playlist
      */
     public void setNameOfPlaylist(String nameOfPlaylist) {
         this.nameOfPlaylist = nameOfPlaylist;
     }
 
+
+    /**
+     * Will retrieve all the songs EXCEPT the ones from the current playlist selected.
+     * This is an extension to the add songs function, where the user can add songs to his playlist, that
+     * are not already in the playlist. Uses SQL-principles.
+     *
+     */
 
     public void retrieveNonIncludedSongs(){
 
@@ -71,8 +87,6 @@ public class Playlist {
             DB.selectSQL("select fldName from tblSong except select fldSongName from tblPlaylistSongs where fldPlaylistName='"+nameOfPlaylist+"'");
 
             loadDataOfLibrary();
-
-
 
 
         } else {
@@ -89,7 +103,6 @@ public class Playlist {
      * This method will load the selected data from SQL and apply the meta data
      */
 
-
     protected void loadDataOfLibrary(){
 
 
@@ -100,8 +113,9 @@ public class Playlist {
                 break;
             } else {
 
+
                 // DEBUGGING
-              //  System.out.println("Added this song to the Song-library ArrayList: " + data);
+                // System.out.println("Added this song to the Song-library ArrayList: " + data);
 
 
                 // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
@@ -111,8 +125,6 @@ public class Playlist {
 
                 // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
                 songsFoundArrayList.add(song);
-
-
 
 
             }
@@ -153,6 +165,10 @@ public class Playlist {
     }
 
 
+    /**
+     * Will count all the songs in the playlist that you've chosen
+     */
+
     private void countSongsInPlaylist(){
 
         // WILL COUNT THE AMOUNT OF SONGS IN THE PLAYLIST
@@ -169,11 +185,52 @@ public class Playlist {
 
         }
 
+    }
+
+    /**
+     * Will display all the selected data. The difference between this, and all the other "Display*" methods is that
+     * this one doesn't actually select anything for you. It just retrieves whatever it finds based on the newest SQL
+     * selection that you've made.
+     */
+
+    protected void displaySelectedData(){
+
+
+        do{
+            String data = DB.getData();
+            if (data.equals(DB.NOMOREDATA)){
+                System.out.println("NO MORE DATA");
+                break;
+            } else {
+
+                System.out.println("Added this song to the Song ArrayList: " + data);
+
+                // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
+                Song song = new Song(data);
+
+
+                // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
+                songsFoundArrayList.add(song);
+
+            }
+
+        } while(true);
+
+        // WILL APPLY META DATA TO ALL THE SONGS IN THE ARRAY LIST
+        applyMetaDataToSongs();
 
 
 
     }
 
+
+    /**
+     * Will display all of the songs from the given playlist name
+     * @param tableView the TableView you want to display the data on
+     * @param titleColumn the column for the song title
+     * @param artistColumn the column for the song artist
+     * @param albumColumn the column for the song album
+     */
 
     @FXML
     public void displayAllSongs(TableView tableView, TableColumn titleColumn, TableColumn artistColumn, TableColumn albumColumn){
@@ -193,45 +250,12 @@ public class Playlist {
 
             if (amountOfSongs>0){
 
-                do{
-                    String data = DB.getData();
-                    if (data.equals(DB.NOMOREDATA)){
-                        System.out.println("NO MORE DATA");
-                        break;
-                    } else {
-
-                        System.out.println("Added this song to the Song ArrayList: " + data);
-
-                        // WILL GIVE US THE FILENAME AND PASS IT TO THE PARAMETERS IN THE SONG OBJECT
-                        Song song = new Song(data);
-
-
-
-                        // TODO MAKE IT DOWNLOAD THE PROPERTIES FROM THE DATA BASE AFTER THIS
-
-                        // WILL ADD THE SONG INCLUDING ITS PROPERTIES TO THE ARRAY LIST
-                        songsFoundArrayList.add(song);
-
-                    }
-
-                } while(true);
-
-                // WILL APPLY META DATA TO ALL THE SONGS IN THE ARRAY LIST
-                applyMetaDataToSongs();
-
-             //   System.out.println("Just testing to see if the metadata is actually here. For song 1 heres what we got: " + songsFoundArrayList.get(0).getSongTitle() + " and " + songsFoundArrayList.get(0).getSongArtist());
-
-
-
-
-                // TODO MAKE IT SHOW UP ON EITHER THE LIST VIEW OR TABLE VIEW
-
-
+                displaySelectedData();
 
 
             } else {
 
-                System.out.println("There's nothing to display. Please check for typos!");
+                System.out.println("There's nothing to display");
                 songsFoundArrayList.clear();
 
 
@@ -249,6 +273,12 @@ public class Playlist {
         }
     }
 
+    /**
+     * Will get the ArrayList of songs, that you've made using the other methods.
+     * Often used for updating the song queue.
+     * @return ArrayList of songs.
+     */
+
     public ArrayList<Song> getSongsFoundArrayList(){
 
 
@@ -258,6 +288,10 @@ public class Playlist {
     }
 
 
+    /**
+     * This method will assign and get information about the metadata for each song.
+     *
+     */
 
     protected void applyMetaDataToSongs(){
 
@@ -272,17 +306,18 @@ public class Playlist {
 
             songsFoundArrayList.get(i).getSongAlbumFromDB();
 
-
-
         }
-
-
-
-
 
     }
 
 
+    /**
+     * This method will insert the data into the Table View.
+     * @param tableView the TableView you want to display the data on
+     * @param titleColumn the column for the song title
+     * @param artistColumn the column for the song artist
+     * @param albumColumn the column for the song album
+     */
 
     @FXML
     public void setSongTableView(TableView tableView, TableColumn titleColumn, TableColumn artistColumn, TableColumn albumColumn){
@@ -297,16 +332,12 @@ public class Playlist {
         // WILL CALL A METHOD THAT GETS THE SONGS AND ITS PROPERTIES
         tableView.setItems(getSongs());
 
-      //  tableView.getColumns().addAll(titleColumn,artistColumn,albumColumn);
-
-
-
-
     }
 
 
     /**
-     * This methods will return an ObservableList of Songs objects
+     * This methods will return an ObservableList of Songs objects. This kind of object is better supported in terms
+     * of displaying data in the TableView. Therefore it is used instead of the ArrayList itself.
      * @return song objects
      */
 
@@ -330,49 +361,9 @@ public class Playlist {
     }
 
 
-
-
-
-
-
     /**
-     * Used for storing SQL data in an ArrayList here in Java
-     * @param arrayList the ArrayList where you want to save it
-     */
-
-
-    // TODO MAY WANNA DELETE THIS NOW THAT WE ARE USING AN OBSERVABLE LIST
-    private void addSQLDataToArrayList(ArrayList arrayList){
-
-        int count = 0;
-
-        do{
-            String data = DB.getData();
-            if (data.equals(DB.NOMOREDATA)){
-
-
-                if (count==0){
-                    // If there's no SQL data to be saved this will show up in the console
-                    System.out.println("There was no SQL data to be saved! Check if you have loaded the methods in the right order");
-                }
-
-                break;
-            }else{
-                // WE ADD EACH ELEMENT TO THE ARRAY LIST
-                arrayList.add(data);
-                count+=1;
-
-            }
-        } while(true);
-
-
-    }
-
-
-
-
-    /**
-     * Just to clear all data from the buffer
+     * This method was made based on the existing functions in the DB Class. The purpose is to empty the buffer, so that you
+     * dont have any pending data.
      */
 
     private static void emptyData(){
@@ -388,31 +379,6 @@ public class Playlist {
 
 
     }
-
-
-
-    ///////////////////
-    // TESTING AREA  //
-    ///////////////////
-
-    public static void main(String[] args) {
-
-
-        Playlist playlist = new Playlist("Best Mumble Rappers");
-
-      //  emptyData();
-
-        Song song = new Song("a lot.mp3");
-
-        playlist.addSong(song);
-
-
-
-
-
-    }
-
-
 
 
 }

@@ -1,8 +1,5 @@
 package sample;
 
-// HEJ KIM HVORDAN GÅR DET? FINDER DU NOGET DU KAN BRUGE? :P
-
-
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.beans.InvalidationListener;
@@ -25,7 +22,6 @@ import javafx.scene.media.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
-// import java.awt.event.ActionEvent;
 import javafx.event.ActionEvent;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -42,6 +38,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ *
+ * Controller for the primary stage.
+ * A Media Player, where the user can play songs. These songs can be added manually to the Library,
+ * and the user can create Playlists that contains songs chosen by the user.
+ * It is also possible to remove both songs and playlists
+ * from the program.
+ *
+ * @author Lukas, Pierre, Alexander and Allan.
+ *
+ *
+ */
+
+
 public class Controller implements Initializable {
 
 
@@ -51,6 +61,9 @@ public class Controller implements Initializable {
 
     @FXML
     private Label headlineLabel;
+
+    @FXML
+    private TextField searchBar;
 
 
 
@@ -73,11 +86,6 @@ public class Controller implements Initializable {
     private TableColumn<Song, String>  songAlbumColumn;
 
 
-
-    @FXML
-    private ListView<ExistingPlaylist> defaultListView;
-
-
     // DURATION OF THE SONG
 
     @FXML
@@ -89,6 +97,7 @@ public class Controller implements Initializable {
     @FXML
     private Slider durationSlider;
 
+
     // DISPLAYING META DATA
 
     @FXML
@@ -96,6 +105,7 @@ public class Controller implements Initializable {
 
     @FXML
     private Text scrollingText;
+
 
 
     // ADJUSTING THE VOLUME
@@ -106,9 +116,6 @@ public class Controller implements Initializable {
     @FXML
     private Button buttonMuteandOn;
 
-    @FXML
-    private Button testButton;
-
 
     // SONG CONTROL
 
@@ -118,13 +125,19 @@ public class Controller implements Initializable {
 
     // PLAYLIST CONFIGURATION
 
+    @FXML
+    private Button addSongButton;
 
+    @FXML
+    private Button deleteSongButton;
+
+    @FXML
+    private Button deletePlaylistButton;
+
+
+    // PLAYLIST SIDE PANEL
    @FXML
    private ListView<String> allPlaylistsListView;
-
-
-   @FXML
-   private Label fileLabel;
 
 
     // NON-FXML VARIABLES
@@ -139,7 +152,7 @@ public class Controller implements Initializable {
 
     private ArrayList<Song> currentPlayQueue;
 
-    private ArrayList<Song> temporaryPlayQueue; // TODO CHECK IF NEEDED
+    private ArrayList<Song> temporaryPlayQueue;
 
     private int currentQueueNumberIndex;
 
@@ -147,12 +160,11 @@ public class Controller implements Initializable {
     // USED FOR FETCHING THE ALBUM COVER
     private MapChangeListener<String,Object> listener;
 
-    private Song mySong; // TODO CHANGE THIS
+    // THE SONG ITSELF
+    private Song mySong;
 
-
+    // USED FOR LOADING DATA FROM THE LIBRARY
     private Library library;
-
-    // PLAYLIST NAMES - DEFAULT: LIBRARY - AS THIS IS WHERE YOU START
 
 
 
@@ -162,6 +174,8 @@ public class Controller implements Initializable {
         return tempPlaylistName;
     }
 
+    // PLAYLIST NAMES - DEFAULT: LIBRARY - AS THIS IS WHERE YOU START
+
     // This one is the one that you just clicked on. (The one that you are looking at)
     private static String tempPlaylistName = "Library";
 
@@ -170,7 +184,7 @@ public class Controller implements Initializable {
 
     // BOOLEANS
 
-    private boolean isOnShuffle = false;
+    private boolean isFirstStartUp = false; // Will check if its the first time / If there's anything in the library
 
     private boolean isPlaying = false; // Will check if the music player is playing
 
@@ -182,9 +196,8 @@ public class Controller implements Initializable {
     // WILL DETERMINE IF SONGS WILL BE SELECTED IN THE TABLE VIEW WHEN YOU SKIP A SONG
     private boolean showSelectedItems = true;
 
-    private String currentPlaylistPlaying; // TODO SEE IF THIS WILL BE USEFUL
 
-
+    // THIS STATIC CONTROLLER CLASS IS CREATED AND USED AS A REFERENCE FROM OTHER CONTROLLER CLASSES
     public static Controller ControllerClass;
 
 
@@ -195,6 +208,13 @@ public class Controller implements Initializable {
      * @param resources
      */
     public void initialize(URL location, ResourceBundle resources) {
+
+
+        addSongButton.setVisible(false);
+
+        deleteSongButton.setVisible(false);
+
+        deletePlaylistButton.setVisible(false);
 
 
         // MADE TO MAKE ACCESS BETWEEN CONTROLLERS POSSIBLE - Will make other classes able to borrow methods from this one
@@ -213,37 +233,16 @@ public class Controller implements Initializable {
 
         defaultLibrary.retrieveAllSongs();
 
-        if (defaultLibrary.getSongsFoundArrayList().size()>0){
-
-            System.out.println("Song number 1 is: " + defaultLibrary.getSongsFoundArrayList().get(0).getFileName());
-
-            currentPlayQueue = defaultLibrary.getSongsFoundArrayList();
-
-            //  defaultTableView.getSelectionModel().select(0);
-
-            mySong = new Song(currentPlayQueue.get(0).getFileName());
-
-            me = mySong.getMedia();
-
-            // THE ONE WE USE FOR TESTING
-
-            setCurrentSong(mySong);
-
-            mp = new MediaPlayer(me);
-            //
-            mediaV.setMediaPlayer(mp);
-            // mp.setAutoPlay(true);
-            // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
-            mp.setAutoPlay(false);
-
+        if (defaultLibrary.getSongsFoundArrayList().size() >= 1) {
+            isFirstStartUp = false;
+            System.out.println("Not the first time you run the application");
+            startUp();
+        }else{
+            isFirstStartUp = true;
+            System.out.println("First Startup Reg.");
         }
 
         showLibrarySongs();
-
-
-
-      //  System.out.println("DEBUGGING - DETAILS ABOUT RECENTLY ADDED SONG: " + mySong.getSongTitle() + ", " + mySong.getSongArtist() + ", " + mySong.getSongAlbum());
-
 
 
     }
@@ -310,7 +309,6 @@ public class Controller implements Initializable {
     /**
      * Will stop the music completely
      */
-
     @FXML
     private void handleStop(){
 
@@ -325,20 +323,12 @@ public class Controller implements Initializable {
 
         isPlaying=false;
 
-        Scanner in = new Scanner(System.in);
-
-       // System.out.println("Enter song name: ");
-
-       // String nameOfSong = in.nextLine();
-
-       // changeSong(nameOfSong);
-
-
-        // TESTING
-
     }
 
 
+    /**
+     * Will play the next song in the queue
+     */
     @FXML
     private void playNextSong(){
 
@@ -363,23 +353,14 @@ public class Controller implements Initializable {
 
 
             // WILL CHECK IF IT SHOULD ENTER SELECT MODE
-         //   checkIfCurrentQueueEqualsSelected();
 
 
-            if (showSelectedItems){ // TODO HAS TO BE TRUE. REVERT
+            if (showSelectedItems){
 
-                // TODO FIX THIS METHOD SO THAT IT KEEPS TRACK OF THE SONGS - ONLY PROBLEM NOW IS THAT PLAY QUEUE IS DOUBLE FIRST TIME
 
                 defaultTableView.getSelectionModel().select(currentQueueNumberIndex);
 
-              //  System.out.println("Selected playlist is called: " + allPlaylistsListView.getSelectionModel().getSelectedItem());
-
-
-
-
             }
-
-
 
 
 
@@ -395,6 +376,10 @@ public class Controller implements Initializable {
 
     }
 
+
+    /**
+     * Will play the previous song from the queue
+     */
     @FXML
     private void playPreviousSong(){
 
@@ -439,6 +424,7 @@ public class Controller implements Initializable {
 
         System.out.println("Index out of bounds. Resetting the current queue number");
 
+        // WILL SET THE QUEUE INDEX BACK TO ZERO
         currentQueueNumberIndex = 0;
 
         mp.stop();
@@ -452,42 +438,6 @@ public class Controller implements Initializable {
         defaultTableView.getSelectionModel().select(0);
 
 
-
-    }
-
-
-    @FXML
-    private void handleShuffle(){
-
-        // TAKES A COPY OF THE PREVIOUS ARRAY LIST AND STORES IT TEMPORARY IN CASE THE USER DISABLES SHUFFLE MODE
-        temporaryPlayQueue = new ArrayList<>(currentPlayQueue);
-
-        if (!isOnShuffle){
-
-
-
-            // TODO FIX THIS METHOD TO USE MATH RANDOM AND THEN CHANGE CURRENTQUEUENUMBERINDEX
-
-
-        }
-
-
-
-    }
-
-
-    private ArrayList<Song> randomizeArrayList(ArrayList arrayList) {
-
-
-        isOnShuffle=true;
-
-
-        Collections.shuffle(arrayList);
-
-
-        System.out.println("IS MUSIC ON SHUFFLE MODE: " + arrayList);
-
-        return arrayList;
 
     }
 
@@ -534,7 +484,7 @@ public class Controller implements Initializable {
                 Path dest = Paths.get(new File("src/sample/media").getPath()); // folderName is the absolute path.
                 Files.copy(src, dest.resolve(src.getFileName()));
 
-                // System.out.println(file.getName());
+                // System.out.println(file.getName()); DEBUGGING
 
                mySong = new Song(file.getName());
 
@@ -613,14 +563,22 @@ public class Controller implements Initializable {
 
             }
 
+
             if (libraryVisible){
 
-                // TODO MAKE IT WAIT A FEW SECONDS BEFORE REFRESHING THE LIBRARY
+                // WILL DISPLAY THE LIBRARY RIGHT AFTER YOU IMPORTED THE FILE, SO THAT THE USER KNOWS ITS THERE
                 showLibrarySongs();
 
             }
 
         }
+
+        // WILL CHECK IF ITS THE FIRST TIME YOU ADD A SONG
+        if(isFirstStartUp){
+            System.out.println("First Startup getting initialized");
+            startUp();
+        }
+
 
     }
 
@@ -674,7 +632,7 @@ public class Controller implements Initializable {
     private void durationManagement(){
 
         // DURATION MANAGEMENT
-
+        // Will listen to the slider and update it continuously
         mp.currentTimeProperty().addListener(new InvalidationListener() {
             public void invalidated(Observable ov)
             {
@@ -682,7 +640,8 @@ public class Controller implements Initializable {
             }
         });
 
-        // Inorder to jump to the certain part of video
+        // Inorder to jump to the certain part of the media
+       // Will change the values if the user moves the slider to a new position
         durationSlider.valueProperty().addListener(new InvalidationListener() {
             public void invalidated(Observable ov)
             {
@@ -700,7 +659,6 @@ public class Controller implements Initializable {
 
 
     }
-
 
 
     /**
@@ -795,7 +753,8 @@ public class Controller implements Initializable {
 
 
 
-        //System.out.println(mp.getCurrentTime().toMinutes());      // Debug
+        //System.out.println(mp.getCurrentTime().toMinutes()); // Debug
+
     }
 
 
@@ -807,7 +766,6 @@ public class Controller implements Initializable {
     /**
      * Will adjust the volume based on the location of the grabber on the slider.
      * Because of the listener, we are able to change the volume in realtime.
-     *
      */
 
     @FXML
@@ -819,6 +777,7 @@ public class Controller implements Initializable {
                 // WILL MAKE SURE THAT IF THE MUSIC IS MUTED AND THE USER CHANGES THE VOLUME, THE FULL SOUND ICON WILL REAPPEAR
                 String pathVolumeIcon = "/sample/buttons/volumeFull.png";
 
+                // WILL CHANGE THE MUTE ICON WHEN YOU ADJUST THE VOLUME
                 buttonMuteandOn.setStyle("-fx-background-size: 30px 30px; " + "-fx-background-color:  #1C1C1C;" + "-fx-background-image: url('" + pathVolumeIcon + "'); ");
 
                 mp.setVolume(volumeSlider.getValue() / 100);
@@ -838,7 +797,6 @@ public class Controller implements Initializable {
      * This method will also make sure, that the icons change as well.
      *
      */
-
     @FXML
     public void muteAndOnVolume(){
 
@@ -868,17 +826,19 @@ public class Controller implements Initializable {
     // CONFIGURE SONG AND QUEUE //
     //////////////////////////////
 
-    Iterator<String> itr ;
 
+    /**
+     * This method receives an ArrayList containing objects in the format "Song"
+     * It will then create and update the current play queue
+     * @param playQueueArrayList the ArrayList with the new songs to be played
+     */
 
     private void setPlayQueue(ArrayList playQueueArrayList){
 
         currentPlayQueue = playQueueArrayList;
 
         // WILL CHECK THE LOCATION OF THE SONG YOU ARE CURRENTLY LISTENING TO. THIS IS SO THAT IT WONT RESTART THE PLAYLIST
-        currentQueueNumberIndex = -1;
-
-
+        currentQueueNumberIndex = -1; // -1 is just to make sure that we don't choose an index number that could be in the ArrayList
 
         for (int i = 0; i < currentPlayQueue.size(); i++) {
 
@@ -907,37 +867,22 @@ public class Controller implements Initializable {
 
 
     /**
-     * TODO WRITE A DESCRIPTION
-     * @param songArrayList
+     * Will set the current song and display all information about the song in the GUI
+     * Title, artist and album will be put into the translating text and if there is an album cover, it will be
+     * displayed as well.
+     * @param currentSong
      */
-
-    private void autoSkipping(ArrayList songArrayList){
-
-
-
-
-
-
-    }
-
-
-
-
-
 
     private void setCurrentSong(Song currentSong) {
 
 
-        // Will pass the parameter to the constructor
-        // Song currentSong = new Song(fileName);
-
         // WILL MAKE A REFERENCE TO INSTANCE VARIABLE
-        mySong = currentSong; //TODO CHECK IF THIS IS NECESSARY
+        mySong = currentSong;
 
         me = currentSong.getMedia();
 
         mp = new MediaPlayer(me);
-        //
+
         mediaV.setMediaPlayer(mp);
         // mp.setAutoPlay(true);
         // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
@@ -1021,9 +966,9 @@ public class Controller implements Initializable {
                     case "image":
 
 
+                        // AS SOON AS THE IMAGE IS FOUND IT WILL PUT THE IMAGE UP IN THE IMAGEVIEW
                         albumCoverView.setImage((Image)value);
 
-                        // TODO FIND A WAY TO REMOVE THE LISTENER
                         break;
 
                 }
@@ -1043,9 +988,24 @@ public class Controller implements Initializable {
     // DISPLAYING SONGS AND PLAYLISTS //
     ////////////////////////////////////
 
+    /**
+     * Will show the library in the TableView. This method is also an obvious choice if you want to refresh the library
+     */
 
     @FXML
     private void showLibrarySongs(){
+
+        // WILL HIDE THE PLAYLIST MANAGEMENT BUTTONS
+
+        addSongButton.setVisible(false);
+
+        deleteSongButton.setVisible(false);
+
+        deletePlaylistButton.setVisible(false);
+
+
+        ///////////////////////////////////////
+
 
         headlineLabel.setText("Library");
 
@@ -1053,6 +1013,8 @@ public class Controller implements Initializable {
 
         tempPlaylistName="Library";
 
+
+        // IF THE SELECTED PLAYLIST AND THE ONE YOU SELECTED A SONG FROM MATCHES, IT WILL HIGHLIGHT THE SONG YOU ARE LISTENING TO
         if (tempPlaylistName.equals(listeningPlaylistName)){
 
             showSelectedItems=true;
@@ -1066,15 +1028,11 @@ public class Controller implements Initializable {
 
         System.out.println("You pressed Library");
 
-        defaultListView.setMaxWidth(0);
-
-        defaultListView.setDisable(true);
-
         // BOOLEANS CHANGED:
 
         libraryVisible=true;
 
-        // TODO MAKE SURE THAT THIS IS ONLY THE NEXT TIME YOU PRESS IT, AND NOT DURING INITIALIZATION
+        // LIBRARY WILL IN THIS CASE BE TREATED AS IF YOU CLICKED ON A NEW PLAYLIST
         selectedNewPlaylist=true;
 
 
@@ -1082,23 +1040,21 @@ public class Controller implements Initializable {
 
         library.displayAllSongs(defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
 
-        // TESTING AREA
 
-
+        // RESETTING TO AVOID THE ARRAY LIST FROM APPENDING THE OLD QUEUE
         library.resetArrayList();
 
         library.retrieveAllSongs();
 
-        library.getSongsFoundArrayList();
-
+        // WILL SET THE NEW QUEUE TO THE SONGS THAT THE ARRAY LIST CONTAINS
         temporaryPlayQueue = library.getSongsFoundArrayList();
 
+        // DEBUGGING AREA
         if (library.getSongsFoundArrayList().size()>0){
 
             System.out.println("This the file name of library index 0: " + library.getSongsFoundArrayList().get(0).getFileName() + " - Check if correct");
 
         }
-
 
 
         System.out.println("The size of temporaryPlayQueue is: " + temporaryPlayQueue.size());
@@ -1107,8 +1063,14 @@ public class Controller implements Initializable {
     }
 
 
+    /**
+     * This method runs as soon as the program is launched. It will display a list of all your playlists on the left side.
+     * This method is also great to use, if you need to refresh the list of playlists.
+     * @param listView the ListView element that you want to display it on.
+     */
 
     public void displayAllPlaylist(ListView listView){
+
 
         allPlaylists = new ExistingPlaylist();
 
@@ -1119,116 +1081,15 @@ public class Controller implements Initializable {
 
 
 
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //                              DEBUGGING                                           //
-    //                                                                                  //
-    //////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    // SELECTION OF OBJECTS IN LIST VIEW AND TABLE VIEW //
+    ////////////////////////////////////////////////////
 
 
     /**
-     * This method was only made for debugging to see if the program got the metadata that it was told to load.
-     * @param event click event
+     * Will select the current song from the current playlist selected. This also works on the Library.
+     * Will update the queue as well.
      */
-
-
-    @FXML
-    private void checkMetaDataTester(ActionEvent event){
-
-
-        setCurrentSong(mySong);
-
-
-        translateText(scrollingText, durationSlider,mySong.getSongTitleFromDB() + " - " + mySong.getSongArtistFromDB() + " - " + mySong.getSongAlbumFromDB());
-
-
-    //    System.out.println("Name is: " + mySong.getSongTitle());
-
-    //    System.out.println("Artist is: " + mySong.getSongArtist());
-
-    //    System.out.println("Album is: " + mySong.getSongAlbum());
-
-
-
-
-    }
-
-    // NOT USED
-
-    private void checkMetaDataTester(Song song){
-
-        System.out.println("Name is: " + song.getSongTitle());
-
-        System.out.println("Artist is: " + song.getSongArtist());
-
-        System.out.println("Album is: " + song.getSongAlbum());
-
-
-
-    }
-
-
-    // DATA BASE METHODS
-
-    public static void emptyData(){
-
-
-        do{
-            String data = DB.getDisplayData();
-            if (data.equals(DB.NOMOREDATA)){
-                break;
-            }
-
-        } while(true);
-
-
-    }
-
-    public String getAllData(){
-
-        String data = "";
-
-        do {
-            data += DB.getData();
-            if (data.equals(DB.NOMOREDATA)) {
-                break;
-            } else {
-                System.out.print(data);
-            }
-        } while (true);
-
-        return data;
-
-    }
-
-
-    private void songPlayingNow(Song song){
-
-    }
-
-
-    // VARIABLES THAT WILL CHECK IF YOU SELECTED A NEW PLAYLIST OR NOT
-
-
-
-
-    private void checkIfCurrentQueueEqualsSelected(){
-
-        if (tempPlaylistName.equals(listeningPlaylistName)){
-
-            showSelectedItems=true;
-
-        } else {
-
-            showSelectedItems=false;
-
-        }
-
-
-    }
-
-
 
     @FXML
     private void getSongSelected(){
@@ -1248,6 +1109,7 @@ public class Controller implements Initializable {
            setCurrentSong(mySong);
 
 
+           // SINCE YOU ARE PLAYING A SONG FROM THE PLAYLIST YOU JUST SELECTED THE VALUES WILL BE EQUAL
            listeningPlaylistName=tempPlaylistName;
 
            System.out.println("1. Song comes from: " + listeningPlaylistName);
@@ -1257,16 +1119,11 @@ public class Controller implements Initializable {
 
            System.out.println("2. Playlist that was selected las time: " + tempPlaylistName);
 
-           // TESTING
-
 
            if (selectedNewPlaylist){
 
                System.out.println("Selected new playlist and started playing it");
 
-              // currentPlaylistPlaying= defaultListView.getSelectionModel().getSelectedItem().getPlaylistName();
-
-             //  System.out.println("+Current playlist is: " + currentPlaylistPlaying);
 
                for (int i = 0; i < temporaryPlayQueue.size(); i++) {
 
@@ -1274,33 +1131,39 @@ public class Controller implements Initializable {
 
                }
 
-
                // WILL CONFIGURE A NEW QUEUE GIVEN THAT THE USER SELECTED A NEW PLAYLIST AND A NEW SONG AS WELL
                setPlayQueue(temporaryPlayQueue);
 
-
            }
-
-           // WILL AUTOMATICALLY PLAY THE SONG WHEN YOU CLICK ON IT
-           //  mp.setAutoPlay(true); TODO CURRENTLY CLASHING WITH THE PLAY CONTROLS
 
 
        } catch (Exception e){
-
-           // TODO EXCEPTION ERROR
 
            System.out.println(e.getMessage());
            System.out.println("Nothing was selected, couldn't play a song");
 
        }
 
-
-
-
     }
+
+
+    /**
+     * Will select the playlist that the user clicks on.
+     * Will not set it to the currently playing playlist before the user selects a song as well.
+     * This is to avoid situations where the user wants to look at other playlists, while still listening to another one.
+     */
 
     @FXML
     private void getPlaylistSelected(){
+
+
+        // WILL SHOW THE PLAYLIST MANAGEMENT BUTTONS AGAIN
+
+        addSongButton.setVisible(true);
+
+        deleteSongButton.setVisible(true);
+
+        deletePlaylistButton.setVisible(true);
 
 
 
@@ -1308,8 +1171,10 @@ public class Controller implements Initializable {
 
         String selectedPlaylist = allPlaylistsListView.getSelectionModel().getSelectedItem();
 
-        tempPlaylistName=selectedPlaylist; // TODO MOVED THIS OUT OF THE IF STATEMENT BODY DOWN BELOW. NOW YOU KNOW IF IT GIVES YOU TROUBLE
+        // WILL GET THE NAME OF THE PLAYLIST YOU JUST PRESSED
+        tempPlaylistName=selectedPlaylist;
 
+        // WILL SHOW IT IN THE LABEL
         headlineLabel.setText(selectedPlaylist);
 
 
@@ -1323,9 +1188,6 @@ public class Controller implements Initializable {
 
         System.out.println("Array size: " + existingPlaylist.getSongsFoundArrayList().size());
 
-       // System.out.println(existingPlaylist.getSongsFoundArrayList().get(0).getFileName());
-
-       // System.out.println(existingPlaylist.getSongsFoundArrayList().get(1).getFileName());
 
         if (existingPlaylist.getSongsFoundArrayList().size()>0){
 
@@ -1352,19 +1214,19 @@ public class Controller implements Initializable {
                 showSelectedItems=false;
 
             }
-
-
         }
-
-
 
     }
 
 
+    /**
+     * Will delete the selected song on the TableView from the playlist that the user selected recently.
+     */
     @FXML
     private void deleteSelectedFromPlaylist(){
 
 
+        // CAN'T BE LIBRARY SINCE LIBRARY ISN'T A PLAYLIST. BUTTON SHOULD BE INVISIBLE THOUGH
         if (!tempPlaylistName.equals("Library")){
 
 
@@ -1376,21 +1238,39 @@ public class Controller implements Initializable {
 
             getPlaylistSelected();
 
-            getSongSelected(); // WILL PROBABLY RESET THE MUSIC
-
-
-
-
-
-
+            getSongSelected(); // WILL RESET THE MUSIC
 
 
         }
 
+    }
+
+    /**
+     * Will delete the selected playlist.
+     */
+
+    @FXML
+    private void deleteSelectedPlaylist(){
 
 
+        // WILL NOT EXECUTE THE METHOD UNLESS THERE'S PENDING DATA
+        if (DB.hasPendingData()){
 
+            emptyData();
 
+        }
+
+        DB.deleteSQL("DELETE FROM tblPlaylistSongs WHERE fldPlaylistName='"+tempPlaylistName+"';");
+
+        DB.deleteSQL("DELETE FROM tblPlaylist WHERE fldName='"+tempPlaylistName+"';");
+
+        System.out.println("Removal successful");
+
+        // WILL REFRESH THE LIST OF PLAYLIST
+        displayAllPlaylist(allPlaylistsListView);
+
+        // WILL GO BACK TO YOUR LIBRARY
+        showLibrarySongs();
 
     }
 
@@ -1503,6 +1383,10 @@ public class Controller implements Initializable {
 
     // MOUSE CLICK EVENTS
 
+    /**
+     * Will detect mouse clicks on the tableView from where you select the songs
+     */
+
     @FXML
     private void mouseClick(){
 
@@ -1526,6 +1410,10 @@ public class Controller implements Initializable {
 
     }
 
+    /**
+     * Will detect mouse clicks on the ListView from where you select the playlists
+     */
+
     @FXML
     private void mouseClickPlaylist() {
 
@@ -1544,6 +1432,124 @@ public class Controller implements Initializable {
     }
 
 
+    /**
+     * Will load the default settings when you run your application. Also found in the initializer.
+     */
+
+    private void startUp() {
+        Library defaultLibrary = new Library();
+
+        defaultLibrary.retrieveAllSongs();
+
+        if (defaultLibrary.getSongsFoundArrayList().size() > 0) {
+
+            System.out.println("Song number 1 is: " + defaultLibrary.getSongsFoundArrayList().get(0).getFileName());
+
+            currentPlayQueue = defaultLibrary.getSongsFoundArrayList();
+
+
+            mySong = new Song(currentPlayQueue.get(0).getFileName());
+
+            me = mySong.getMedia();
+
+            setCurrentSong(mySong);
+
+            mp = new MediaPlayer(me);
+            //
+            mediaV.setMediaPlayer(mp);
+            // mp.setAutoPlay(true);
+            // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
+            mp.setAutoPlay(false);
+        }
+        isFirstStartUp = false;
+        System.out.println("Startup finished");
+    }
+
+
+    /**
+     * Will let the user enter keywords in the search bar (TextField) and then search for chars in the database.
+     * The content displayed in the TableView will be given as Object: Songs, so that the user can play them as well.
+     * @param event
+     */
+
+    @FXML
+    private void searchForSongs(ActionEvent event){
+
+        addSongButton.setVisible(false);
+
+        deleteSongButton.setVisible(false);
+
+        deletePlaylistButton.setVisible(false);
+
+
+        Library library = new Library();
+
+        library.searchForSongs(searchBar,defaultTableView,songTitleColumn,songArtistColumn,songAlbumColumn);
+
+        selectedNewPlaylist=true;
+
+        // WILL CREATE A NEW PLAYLIST QUEUE OF THE SONGS THAT YOU FOUND
+        temporaryPlayQueue = new ArrayList<>(library.getSongsFoundArrayList());
+
+
+        tempPlaylistName="search result";
+
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //                              DEBUGGING                                           //
+    //                                                                                  //
+    //////////////////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * This method was only made for debugging to see if the program got the metadata that it was told to load.
+     * @param event click event
+     */
+    @FXML
+    private void checkMetaDataTester(ActionEvent event){
+
+
+        setCurrentSong(mySong);
+
+
+        translateText(scrollingText, durationSlider,mySong.getSongTitleFromDB() + " - " + mySong.getSongArtistFromDB() + " - " + mySong.getSongAlbumFromDB());
+
+
+        //    System.out.println("Name is: " + mySong.getSongTitle());
+
+        //    System.out.println("Artist is: " + mySong.getSongArtist());
+
+        //    System.out.println("Album is: " + mySong.getSongAlbum());
+
+
+
+
+    }
+
+
+    // DATA BASE METHODS
+
+
+    /**
+     * This method was made based on the existing functions in the DB Class. The purpose is to empty the buffer, so that you
+     * dont have any pending data.
+     */
+
+    public static void emptyData(){
+
+
+        do{
+            String data = DB.getDisplayData();
+            if (data.equals(DB.NOMOREDATA)){
+                break;
+            }
+
+        } while(true);
+
+
+    }
 
 
 

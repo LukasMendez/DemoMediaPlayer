@@ -8,8 +8,14 @@ import java.util.ArrayList;
 
 /**
  *
- * This class to modify existing playlist
- * Here you can search and find the specific one, that you are looking for
+ * This class is to modify existing playlist, not to create a new one.
+ * It is though a subclass to the superclass, which is "Playlist".
+ *
+ * The main reason why they are separated is to make it easier to distinguish between CREATION and ACCESS.
+ * Playlist is mostly for creating a new playlist AND THEN modifying it, where ExistingPlaylist is to accessing
+ * one you created earlier.
+ *
+ * @author Lukas, Pierre, Alexander and Allan
  *
  */
 
@@ -20,19 +26,19 @@ public class ExistingPlaylist extends Playlist {
     private String playlistName;
 
 
-
-
+    /**
+     * Default constructor that also invokes the super constructor
+     */
 
     public ExistingPlaylist(){
 
-        // INVOKE THE DEFAULT CONSTRUCTOR IN THE SUPERCLASS
         super();
 
     }
 
     /**
-     * Only used when you know the playlistName on purpose. If you're unsure, then you use the search method.
-     * @param playlistName
+     * This is where you select the playlist name
+     * @param playlistName the name of your playlist
      */
     public void setPlaylistName(String playlistName){
 
@@ -40,77 +46,7 @@ public class ExistingPlaylist extends Playlist {
 
         super.setNameOfPlaylist(this.playlistName);
 
-
-
-
     }
-
-
-    public void searchForPlaylist(String searchName, ListView listView){
-
-
-        // WILL SEARCH FOR THE GIVEN NAME IN THE PLAYLIST
-        DB.selectSQL("SELECT fldName FROM tblPlaylist\n" +
-                "                    WHERE CHARINDEX('"+searchName+"', fldName) > 0");
-
-
-        int amountOfResults = checkAmountOfResults();
-
-        configurePlaylistName(amountOfResults, searchName, listView);
-
-
-
-
-    }
-
-
-
-    private int checkAmountOfResults(){
-
-        int count = 0;
-
-        System.out.println();
-
-        do{
-            String data = DB.getData();
-            if (data.equals(DB.NOMOREDATA)){
-                break;
-            }else{
-
-                count+=1;
-                System.out.println(data);
-            }
-        } while(true);
-
-
-        if (count==1) {System.out.println("\nFound " + count + " result!");}
-        else { System.out.println("\nFound " + count + " results!"); }
-
-
-        return count;
-    }
-
-
-
-    private void configurePlaylistName(int amountOfResults, String playlistName, ListView listView){
-
-        // WILL PROVIDE A VISUAL LIST OF THE SEARCH RESULTS
-        if (amountOfResults>0){
-
-            DB.selectSQL("SELECT fldName FROM tblPlaylist\n" +
-                    "                    WHERE CHARINDEX('"+playlistName+"', fldName) > 0");
-
-
-            displayData(listView);
-
-        } else {
-
-            System.out.println("Nothing to display. Search machine found nothing.");
-
-        }
-
-    }
-
 
 
 
@@ -147,9 +83,14 @@ public class ExistingPlaylist extends Playlist {
         } while(true);
 
 
+
         // THE LIST VIEW WILL DISPLAY EACH ELEMENT ONE BY ONE
         // THE LOOP WILL ONLY RUN AS MANY TIMES AS THERE ARE ITEMS (SEARCH RESULTS)
+
+        listView.getItems().clear();
+
         for (int i = 0; i < arrayList.size(); i++) {
+
 
 
                 listView.getItems().add(arrayList.get(i));
@@ -159,11 +100,10 @@ public class ExistingPlaylist extends Playlist {
 
     }
 
-
-
-
-
-    // TODO MAKE IT POSSIBLE FOR THE USER TO SELECT A PLAYLIST. THAT PLAYLIST WILL BE SET TO THE INSTANCE VARIABLE
+    /**
+     * Get the playlist name
+     * @return playlistname
+     */
 
     public String getPlaylistName(){
 
@@ -171,6 +111,11 @@ public class ExistingPlaylist extends Playlist {
         return playlistName;
     }
 
+
+    /**
+     * This method was made based on the existing functions in the DB Class. The purpose is to empty the buffer, so that you
+     * dont have any pending data.
+     */
 
     private static void emptyData(){
 
@@ -182,26 +127,6 @@ public class ExistingPlaylist extends Playlist {
             }
 
         } while(true);
-
-
-    }
-
-
-    ///////////////////
-    // TESTING AREA  //
-    ///////////////////
-
-
-    public static void main(String[] args) {
-
-       ExistingPlaylist existingPlaylist = new ExistingPlaylist();
-
-
-
-
-
-
-     //   System.out.println("The playlist name choosen for the object is: " + existingPlaylist.getPlaylistName());
 
 
     }

@@ -11,9 +11,18 @@ import javafx.scene.media.*;
 
 import java.io.File;
 
-public class Song {
 
-    private boolean doneSearching = false;
+/**
+ *
+ * This class represents the song itself. The song isn't just a media file. It contains a lot of information, that
+ * the user and the programmer could be interested in. This is information such as file name, song title, artist, album,
+ * the source and of course the media itself. This class gets you all of that.
+ *
+ * @author Lukas, Pierre, Alexander and Allan
+ *
+ */
+
+public class Song {
 
 
     private String fileName;
@@ -23,12 +32,15 @@ public class Song {
     private String songTitle;
     private String songArtist;
     private String songAlbum;
-    private Image albumCover;
 
     private Media media;
     private MediaPlayer mediaPlayer;
 
 
+    /**
+     * Creates a song object. Make sure that it's saved in your media folder first.
+     * @param fileName the specific filename including format
+     */
 
     public Song (String fileName){
 
@@ -47,16 +59,29 @@ public class Song {
 
     }
 
-    // SETTERS
+    /**
+     * Will let you set the song title
+     * @param songTitle the song title name
+     */
 
     public void setSongTitle(String songTitle) {
 
         this.songTitle = songTitle;
     }
 
+    /**
+     * Will let you set the artist name
+     * @param songArtist the song artist name
+     */
+
     public void setSongArtist(String songArtist) {
         this.songArtist = songArtist;
     }
+
+    /**
+     * Will let you set the album name
+     * @param songAlbum the song album name
+     */
 
     public void setSongAlbum(String songAlbum) {
         this.songAlbum = songAlbum;
@@ -65,13 +90,21 @@ public class Song {
 
     // GETTERS
 
+    /**
+     * Will get the title directly from the instance variable
+     * @return title
+     */
+
     public String getSongTitle() {
 
             return songTitle;
 
-
-
     }
+
+    /**
+     * Will get the artist directly from the instance variable
+     * @return artist
+     */
 
     public String getSongArtist() {
 
@@ -82,6 +115,10 @@ public class Song {
 
     }
 
+    /**
+     * Will get the album directly from the instance variable
+     * @return album
+     */
 
     public String getSongAlbum() {
 
@@ -91,45 +128,39 @@ public class Song {
 
     }
 
-    public boolean noMetaData(){
-
-
-        return true;
-
-
-    }
-
-
-
+    /**
+     * This method will get you the media object
+     * @return media
+     */
 
     public Media getMedia() {
         return media;
     }
 
-    public MediaPlayer getMediaPlayer(){
 
-
-
-        return mediaPlayer;
-
-    }
+    /**
+     * Will get you the filename of the current song instance
+     * @return filename.(mp3 or wav)
+     */
 
     public String getFileName(){
 
         return fileName;
     }
 
-    public String getSource(){
-
-        return source;
-
-    }
 
 
     // GETTERS FROM THE DATABASE. WE USE THESE WHEN WE KNOW THAT THE INFORMATION IS ALREADY IN THE DATABASE.
     // IF WE USE THE OTHER GETTERS IT CAN CONFLICT WITH THE LISTENERS.
     // THE GETTERS USUALLY FETCH THE DATA FASTER THAN THE LISTENERS ARE ABLE TO STORE THE VALUES.
-    // THIS WILL JUST GIVE US THE RESULT "NULL" WHICH IS UNWANTED. 
+    // THIS WILL JUST GIVE US THE RESULT "NULL" WHICH IS UNWANTED.
+
+
+    /**
+     * Will provide you the name of the title, but fetch it from the database instead
+     * @return title from DB
+     */
+
 
     public String getSongTitleFromDB() {
 
@@ -145,6 +176,11 @@ public class Song {
     }
 
 
+    /**
+     * Will provide you the name of the artist, but fetch it from the database instead
+     * @return artist from DB
+     */
+
     public String getSongArtistFromDB() {
 
         DB.selectSQL("select fldArtist from tblSong where fldName='" + this.fileName+"'");
@@ -157,6 +193,10 @@ public class Song {
         return songArtist;
     }
 
+    /**
+     * Will provide you the name of the album, but fetch it from the database instead
+     * @return album from DB
+     */
 
     public String getSongAlbumFromDB() {
 
@@ -169,64 +209,10 @@ public class Song {
         return songAlbum;
     }
 
-
-
-
-
-
-    public void applyProperties() {
-
-
-        System.out.println("Applying properties..");
-
-
-        ObservableMap<String,Object> meta_data=media.getMetadata();
-
-        meta_data.addListener(new MapChangeListener<String,Object>(){
-            @Override
-            public void onChanged(Change<? extends String, ? extends Object> ch) {
-
-                if(ch.wasAdded()){
-
-                    String key=ch.getKey();
-                    Object value=ch.getValueAdded();
-
-                    switch(key){
-                        case "album":
-                            songAlbum = value.toString();
-                          //  System.out.println(value.toString());
-                            break;
-                        case "artist":
-                            songArtist = value.toString();
-                          //  System.out.println(value.toString());
-                            break;
-                        case "title":
-                            songTitle = value.toString();
-                          //  System.out.println(value.toString());
-                            doneSearching=true;
-                            break;
-
-
-                    }
-                }
-            }
-
-
-
-        });
-
-
-
-
-    } // TODO MAY WANNA DELETE THIS
-
-    public boolean getDoneSearching(){
-
-        return doneSearching;
-    } // TODO MAY WANNA DELETE THIS
-
-
-    // DATABASE RELATED METHODS
+    /**
+     * This method was made based on the existing functions in the DB Class. The purpose is to empty the buffer, so that you
+     * dont have any pending data.
+     */
 
     private static void emptyData(){
 

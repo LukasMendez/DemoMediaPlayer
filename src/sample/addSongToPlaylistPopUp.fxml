@@ -18,7 +18,7 @@
          <children>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #2E2E2E;">
                <children>
-                  <TextField promptText="Search" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-focus-color: transparent; -fx-background-insets: -1.4, 0, 1, 2;">
+                  <TextField promptText="Search" style="-fx-border-radius: 50; -fx-background-radius: 50; -fx-focus-color: transparent; -fx-background-insets: -1.4, 0, 1, 2;" visible="false">
                      <font>
                         <Font name="Arial" size="14.0" />
                      </font>

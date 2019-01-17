@@ -18,6 +18,14 @@ import playlistManagement.Playlist;
 
 import java.io.IOException;
 
+/**
+ *
+ * This class represents the popup window, where the user can create a new playlist, and give it a name.
+ *
+ * @author Lukas, Pierre, Alexander and Allan
+ *
+ */
+
 public class PopupController {
 
     @FXML
@@ -40,7 +48,10 @@ public class PopupController {
     private Scene windowScene;
 
 
-
+    /**
+     * Will invoke the Constructor and crate a new Stage for the window
+     * @throws IOException
+     */
 
     public PopupController() throws IOException{
 
@@ -50,6 +61,10 @@ public class PopupController {
 
     }
 
+    /**
+     * This method will actually generate and display the window to the user, unless it's already open.
+     * @throws IOException
+     */
 
     public void createPlaylistPopup() throws IOException {
 
@@ -77,6 +92,12 @@ public class PopupController {
         // WILL CHECK IF THE USER CLOSES THE WINDOW AND MAKE YOU ABLE TO REOPEN IT AFTERWARDS
         inputWindow.setOnHiding(new EventHandler<WindowEvent>() {
 
+            /**
+             * This handy method will listen to WindowsEvents. Basically it will tell the program, that the window was closed,
+             * and then set windowOpen to false, so that you can open it again.
+             * @param event closing the window.
+             */
+
             @Override
             public void handle(WindowEvent event) {
                 Platform.runLater(new Runnable() {
@@ -95,6 +116,10 @@ public class PopupController {
 
     }
 
+    /**
+     * This is the submit button. This will create and save the playlist name in the database.
+     * This requires, that the name does not already exist though.
+     */
 
     @FXML
     private void submitNewPlaylist(){
@@ -112,10 +137,11 @@ public class PopupController {
             if (count>0){
 
                 errorLabel.setVisible(true);
-                // errorLabel.setText("You already have a playlist with that name");
+
 
             } else {
 
+                // WILL INVOKE THE OVERLOADED CONSTRUCTOR AND INSERT THE STRING INTO THE DATABASE
                 Playlist newPlaylist = new Playlist(userInput);
 
                 windowOpen=false;
@@ -126,20 +152,18 @@ public class PopupController {
                 Controller.doneCreatingPlaylist();
 
 
-                // TEMPORARY SOLUTION FOR CLOSING THE WINDOW
+                // TEMPORARY SOLUTION FOR CLOSING THE WINDOW. TAKES THE BUTTON, GETS THE WINDOW FROM IT AND CLOSES IT.
                 ((Stage)createPlayListButton.getScene().getWindow()).close();
-
-
-
-
-
-
 
             }
 
         }
 
     }
+
+    /**
+     * Will close the window, without saving the name
+     */
 
     @FXML
     private void cancelCreation(){
@@ -154,6 +178,10 @@ public class PopupController {
     }
 
 
+    /**
+     * This method was made based on the existing functions in the DB Class. The purpose is to empty the buffer, so that you
+     * dont have any pending data.
+     */
 
     private static void emptyData(){
 
