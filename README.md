@@ -13,6 +13,8 @@ Alternative link if you dont want it to have data when you load it:
 
 https://we.tl/t-k3Wnqd0kHT
 
+IF YOU WANT TO USE THE ALTERNATIVE SCRIPT YOU WILL HAVE TO REMOVE ALL THE SONGS 
+FROM THE MEDIA FOLDER. 
 
 
 
