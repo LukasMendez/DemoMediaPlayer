@@ -17,5 +17,9 @@ IF YOU WANT TO USE THE ALTERNATIVE SCRIPT YOU WILL HAVE TO REMOVE ALL THE SONGS
 FROM THE MEDIA FOLDER. 
 
 
+Screenshots of execution: 
+
+https://we.tl/t-8vVQ1DlHNB
+
 
 # Better than Spotify
